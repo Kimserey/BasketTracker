@@ -27,37 +27,79 @@ module Store =
     type BasketList(baskets: BasketView list) =
         inherit ListView(ItemsSource = baskets, ItemTemplate = new DataTemplate(typeof<BasketCell>))
 
-    type StorePage(name, baskets) as self =
+    type StoreDetailPage(name, baskets) as self =
         inherit NavigationPage(new ContentPage(Title = name, Content = BasketList(baskets)))
 
+        let item =
+            new ToolbarItem(
+                "New",
+                "plus",
+                fun () ->
+                    self.DisplayAlert("Alert", "Something", "OK") 
+                    |> Async.AwaitTask 
+                    |> Async.Start)
+
         do
-            let item =
-                new ToolbarItem(Text = "New", Icon = FileImageSource.op_Implicit "plus.png")
-
-            item.Clicked.Add(fun e ->
-                self.DisplayAlert("Alert", "Something", "OK") 
-                |> Async.AwaitTask 
-                |> Async.Start)
-
             base.ToolbarItems.Add(item)
 
-    type StoreMasterDetailPage() =
-        inherit MasterDetailPage()
+    type StoreMenuItemCell() =
+        inherit TextCell()
 
         do
-            base.Master <- new ContentPage()
-            base.Detail <- new ContentPage()
-         
-type App() = 
-    inherit Application()
+            base.SetBinding(TextCell.TextProperty, "Name")
 
-    do 
+    type StoreMasterPage(stores) =
+        inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit("hamburger"))
+
+        let (Stores stores) = stores
+
+        let title =
+            new Label(
+                Text = "Stores",
+                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof<Label>),
+                VerticalOptions = LayoutOptions.CenterAndExpand,
+                HorizontalOptions = LayoutOptions.CenterAndExpand)
+
+        let menu = 
+            new ListView(
+                ItemsSource = stores,
+                ItemTemplate = new DataTemplate(typeof<StoreMenuItemCell>),
+                VerticalOptions = LayoutOptions.FillAndExpand)
+        
+        let layout =
+            new StackLayout()
+
+        do
+            layout
+                .Children
+                .Add(title)
+
+            layout
+                .Children
+                .Add(menu)
+
+            base.Content <- layout
+
+    type Root() =
+        inherit MasterDetailPage()
+
+        let stores =
+            Stores.Sample
+
         let store = 
-            let (Stores stores) = Stores.Sample
+            let (Stores stores) = stores
             stores.[0]
 
         let baskets =
             store.Baskets
             |> List.map BasketView.FromDomain
 
-        base.MainPage <- new StorePage(store.Name, baskets)
+        do
+            base.Master <- new StoreMasterPage(stores)
+            base.Detail <- new StoreDetailPage(store.Name, baskets)
+         
+type App() = 
+    inherit Application()
+
+    do 
+        base.MainPage <- new Root()
