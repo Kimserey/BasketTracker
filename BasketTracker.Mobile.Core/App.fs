@@ -49,16 +49,29 @@ module Store =
             base.SetBinding(TextCell.TextProperty, "Name")
 
     type StoreMasterPage(stores) =
-        inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit("hamburger"))
+        inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit"hamburger")
 
         let (Stores stores) = stores
 
         let title =
-            new Label(
-                Text = "Stores",
-                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof<Label>),
-                VerticalOptions = LayoutOptions.CenterAndExpand,
-                HorizontalOptions = LayoutOptions.CenterAndExpand)
+            let layout = 
+                new StackLayout(
+                    Padding = new Thickness(10.),
+                    Orientation = StackOrientation.Horizontal)
+            
+            layout
+                .Children
+                .Add(new Image(Source = FileImageSource.op_Implicit "shop"))
+
+            layout
+                .Children
+                .Add(
+                    new Label(
+                        Text = "Stores",
+                        FontSize = Device.GetNamedSize(NamedSize.Medium, typeof<Label>),
+                        HorizontalOptions = LayoutOptions.StartAndExpand,
+                        VerticalOptions = LayoutOptions.CenterAndExpand))
+            layout
 
         let menu = 
             new ListView(

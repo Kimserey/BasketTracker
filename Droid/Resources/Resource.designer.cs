@@ -3312,11 +3312,14 @@ namespace BasketTracker.Droid
 			// aapt resource value: 0x7f020063
 			public const int mr_ic_settings_light = 2130837603;
 			
-			// aapt resource value: 0x7f020065
-			public const int notification_template_icon_bg = 2130837605;
+			// aapt resource value: 0x7f020066
+			public const int notification_template_icon_bg = 2130837606;
 			
 			// aapt resource value: 0x7f020064
 			public const int plus = 2130837604;
+			
+			// aapt resource value: 0x7f020065
+			public const int shop = 2130837605;
 			
 			static Drawable()
 			{
