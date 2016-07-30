@@ -27,16 +27,27 @@ module Store =
     type BasketList(baskets: BasketView list) =
         inherit ListView(ItemsSource = baskets, ItemTemplate = new DataTemplate(typeof<BasketCell>))
 
-    type StorePage(name, baskets) =
+    type StorePage(name, baskets) as self =
         inherit NavigationPage(new ContentPage(Title = name, Content = BasketList(baskets)))
 
         do
-            base.ToolbarItems.Add(
-                new ToolbarItem(
-                    "New", 
-                    "plus.png", 
-                    (fun () -> ())))
+            let item =
+                new ToolbarItem(Text = "New", Icon = FileImageSource.op_Implicit "plus.png")
 
+            item.Clicked.Add(fun e ->
+                self.DisplayAlert("Alert", "Something", "OK") 
+                |> Async.AwaitTask 
+                |> Async.Start)
+
+            base.ToolbarItems.Add(item)
+
+    type StoreMasterDetailPage() =
+        inherit MasterDetailPage()
+
+        do
+            base.Master <- new ContentPage()
+            base.Detail <- new ContentPage()
+         
 type App() = 
     inherit Application()
 
