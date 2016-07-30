@@ -1,13 +1,18 @@
 ﻿namespace BasketTracker.Mobile.Core
 
 open System
+open System.Collections
+open System.Collections.Generic
 open Domain
 open Xamarin.Forms
 
 type BasketView = {
-        Date: DateTime
+        Date: string
         Amount: string
-    }
+    } with
+        static member FromDomain (basket: Basket) =
+            { Date = basket.Date.ToString("dd MMM yyyy")
+              Amount = (basket.Items |> List.sumBy (fun i -> i.Amount)).ToString("C2") }
 
 [<AutoOpen>]
 module Store =
@@ -23,7 +28,14 @@ module Store =
         inherit ListView(ItemsSource = baskets, ItemTemplate = new DataTemplate(typeof<BasketCell>))
 
     type StorePage(name, baskets) =
-        inherit ContentPage(Title = name, Content = BasketList(baskets))
+        inherit NavigationPage(new ContentPage(Title = name, Content = BasketList(baskets)))
+
+        do
+            base.ToolbarItems.Add(
+                new ToolbarItem(
+                    "New", 
+                    "plus.png", 
+                    (fun () -> ())))
 
 type App() = 
     inherit Application()
@@ -35,8 +47,6 @@ type App() =
 
         let baskets =
             store.Baskets
-            |> List.map(fun b -> 
-                { Date = b.Date
-                  Amount = (b.Items |> List.sumBy (fun i -> i.Amount)).ToString("C2") })
-                
+            |> List.map BasketView.FromDomain
+
         base.MainPage <- new StorePage(store.Name, baskets)
