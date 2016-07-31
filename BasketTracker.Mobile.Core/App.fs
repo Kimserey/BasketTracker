@@ -124,7 +124,7 @@ module Store =
 
 
     type StoreMasterPage(stores, onSelect) as self =
-        inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit"hamburger")
+        inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit "hamburger")
 
         let (Stores stores) = 
             stores
