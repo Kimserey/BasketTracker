@@ -45,29 +45,44 @@ type StoreDetailViewModel() =
             self.OnPropertyChanged "Baskets"
         
 and BasketViewModel = {
-    Date: string
-    Amount: string
+    Date: DateTime
+    Amount: Decimal
+    Items: BasketItem list
 } with
     static member FromDomain (basket: Basket) =
         let sum = 
             basket.Items 
             |> List.sumBy (fun i -> i.Amount)
 
-        { Date   = basket.Date.ToString("dd MMM yyyy")
-          Amount = sum.ToString("C2") }
+        { Date   = basket.Date
+          Amount = sum
+          Items = basket.Items }
 
 type BasketDetailViewModel() =
     inherit ViewModelBase()
 
-    let mutable title = ""
-    let mutable items: BasketItemViewModel list = []
+    let mutable store = ""
+    let mutable date = DateTime.MinValue
+    let mutable items: BasketItem list = []
 
-    member self.Title
-        with get() = title
+    member self.Store
+        with get() = store
         and set value =
-            self.OnPropertyChanging "Title"
-            title <- value
-            self.OnPropertyChanged "Title"
+            self.OnPropertyChanging "Store"
+            store <- value
+            self.OnPropertyChanged "Store"
+    
+    member self.Date
+        with get() = date
+        and set value =
+            self.OnPropertyChanging "Date"
+            date <- value
+            self.OnPropertyChanged "Date"
+
+    member self.Sum
+        with get() =
+            items 
+            |> List.sumBy (fun item -> item.Amount)
 
     member self.Items
         with get() = items
@@ -75,6 +90,7 @@ type BasketDetailViewModel() =
             self.OnPropertyChanging "Items"
             items <- value
             self.OnPropertyChanged "Items"
+            self.OnPropertyChanged "Sum"
 
     member self.AddItem item =
         self.Items <- item::items
@@ -82,38 +98,26 @@ type BasketDetailViewModel() =
     member self.RemoveItem item =
         self.Items <- (items |> List.filter ((<>) item))
 
-and BasketItemViewModel = {
-    Key: int
-    Title: string
-    Amount: decimal
-}
+[<AutoOpen>]
+module Extensions =
+
+    type Label with
+        static member SetBinding' prop (name: string) (label: Label) =
+            label.SetBinding(prop, name)
+            label
+
+    type ListView with
+        static member SetTemplateBinding prop (name: string) (list: ListView) =
+            list.ItemTemplate.SetBinding(prop, name)
+            list
+
+    type StackLayout with
+        static member AddChild child (layout: StackLayout) =
+            layout.Children.Add child
+            layout
 
 [<AutoOpen>]
 module Store =
-
-    //type BasketEntry(store) =
-    //    inherit ContentPage(Title = store + " - basket")
-
-    //type BasketCell() =
-    //    inherit TextCell()
-
-    //    do
-    //        base.SetBinding(TextCell.TextProperty, "Date")
-    //        base.SetBinding(TextCell.DetailProperty, "Amount")
-
-    //type BasketList(baskets: BasketView list) =
-    //    inherit ListView(ItemTemplate = new DataTemplate(typeof<BasketCell>))
-
-    //    do
-    //        base.BindingContext <- box { Items = baskets }
-    //        base.SetBinding(ListView.ItemsSourceProperty, "Items")
-
-
-    //type StoreBasketListPage(defaultStore: Store) =
-    //    inherit ContentPage(Title = defaultStore.Name)
-
-    //    do
-    //        base.Content <- new BasketList(
 
     //type StoreDetailPage(defaultStore: Store) as self =
     //    inherit NavigationPage()
@@ -135,11 +139,26 @@ module Store =
     //        base.CurrentPage.BindingContext <- store
 
     type BasketDetailPage(vm: BasketDetailViewModel) =
-        inherit ContentPage()
+        inherit ContentPage(Title = "Basket")
 
+        let itemList = 
+            new ListView(ItemsSource = vm.Items, ItemTemplate = new DataTemplate(typeof<TextCell>))
+            |> ListView.SetTemplateBinding TextCell.TextProperty "Name"
+            |> ListView.SetTemplateBinding TextCell.DetailProperty "Amount"
+
+        let header =
+            new StackLayout(Padding = new Thickness(10.))
+            |> StackLayout.AddChild (new Label(Text = vm.Store))
+            |> StackLayout.AddChild (new Label(Text = vm.Date.ToString("dd MMM yyyy")))
+            |> StackLayout.AddChild (new Label() |> Label.SetBinding' Label.TextProperty "Sum")
+
+        let pageLayout =
+            new StackLayout()
+            |> StackLayout.AddChild header
+            |> StackLayout.AddChild itemList
         do
             base.BindingContext <- vm
-            base.SetBinding(ContentPage.TitleProperty, "Title")
+            base.Content <- pageLayout
 
     type StoreDetailPage(vm: StoreDetailViewModel) as self =
         inherit ContentPage()
@@ -165,8 +184,14 @@ module Store =
                 .Add(fun e -> 
                     let selection = e.SelectedItem :?> BasketViewModel
 
+                    let basketVM =
+                        new BasketDetailViewModel(
+                            Store = vm.Title,
+                            Date = selection.Date,
+                            Items = selection.Items)
+
                     let basketDetail = 
-                        new BasketDetailPage(new BasketDetailViewModel(Title = sprintf "%s - %s" selection.Date selection.Amount))
+                        new BasketDetailPage(basketVM)
 
                     self.Navigation.PushAsync(basketDetail)
                     |> Async.AwaitTask
@@ -180,24 +205,16 @@ module Store =
             stores
 
         let title =
-            let layout = 
-                new StackLayout(
-                    Padding = new Thickness(10.),
-                    Orientation = StackOrientation.Horizontal)
-            
-            layout
-                .Children
-                .Add(new Image(Source = FileImageSource.op_Implicit "shop_black"))
-
-            layout
-                .Children
-                .Add(
-                    new Label(
+            new StackLayout(
+                Padding = new Thickness(10.),
+                Orientation = StackOrientation.Horizontal)
+            |> StackLayout.AddChild (new Image(Source = FileImageSource.op_Implicit "shop_black"))
+            |> StackLayout.AddChild 
+                    (new Label(
                         Text = "Stores",
                         FontSize = Device.GetNamedSize(NamedSize.Medium, typeof<Label>),
                         HorizontalOptions = LayoutOptions.StartAndExpand,
                         VerticalOptions = LayoutOptions.CenterAndExpand))
-            layout
 
         let menu = 
             let list =
@@ -233,9 +250,14 @@ module Store =
 
         let stores =
             Stores.Sample
+        
+        let defaultStore =
+            let (Stores stores) = stores
+            stores.[0]
 
+        let vm = 
+            new StoreDetailViewModel(Title = defaultStore.Name, Baskets = (defaultStore.Baskets |> List.map BasketViewModel.FromDomain))
         do
-            let vm = new StoreDetailViewModel()
             self.Detail <- 
                 new NavigationPage(StoreDetailPage(vm))
 
