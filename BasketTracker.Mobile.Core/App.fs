@@ -56,6 +56,37 @@ and BasketViewModel = {
         { Date   = basket.Date.ToString("dd MMM yyyy")
           Amount = sum.ToString("C2") }
 
+type BasketDetailViewModel() =
+    inherit ViewModelBase()
+
+    let mutable title = ""
+    let mutable items: BasketItemViewModel list = []
+
+    member self.Title
+        with get() = title
+        and set value =
+            self.OnPropertyChanging "Title"
+            title <- value
+            self.OnPropertyChanged "Title"
+
+    member self.Items
+        with get() = items
+        and set value =
+            self.OnPropertyChanging "Items"
+            items <- value
+            self.OnPropertyChanged "Items"
+
+    member self.AddItem item =
+        self.Items <- item::items
+
+    member self.RemoveItem item =
+        self.Items <- (items |> List.filter ((<>) item))
+
+and BasketItemViewModel = {
+    Key: int
+    Title: string
+    Amount: decimal
+}
 
 [<AutoOpen>]
 module Store =
@@ -103,11 +134,19 @@ module Store =
     //        let store = self.BindingContext :?> Store
     //        base.CurrentPage.BindingContext <- store
 
-    type StoreDetailPage(vm: StoreDetailViewModel) =
+    type BasketDetailPage(vm: BasketDetailViewModel) =
         inherit ContentPage()
 
-        let basketList = new ListView(ItemTemplate = new DataTemplate(typeof<TextCell>))
+        do
+            base.BindingContext <- vm
+            base.SetBinding(ContentPage.TitleProperty, "Title")
 
+    type StoreDetailPage(vm: StoreDetailViewModel) as self =
+        inherit ContentPage()
+
+        let basketList = 
+            new ListView(ItemTemplate = new DataTemplate(typeof<TextCell>))
+        
         do
             base.BindingContext <- vm
             base.SetBinding(ContentPage.TitleProperty, "Title")
@@ -121,6 +160,17 @@ module Store =
                 .SetBinding(TextCell.DetailProperty, "Amount")
             basketList
                 .SetBinding(ListView.ItemsSourceProperty, "Baskets")
+            basketList
+                .ItemSelected
+                .Add(fun e -> 
+                    let selection = e.SelectedItem :?> BasketViewModel
+
+                    let basketDetail = 
+                        new BasketDetailPage(new BasketDetailViewModel(Title = sprintf "%s - %s" selection.Date selection.Amount))
+
+                    self.Navigation.PushAsync(basketDetail)
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate)
 
 
     type StoreMasterPage(stores, onSelect) as self =
@@ -137,7 +187,7 @@ module Store =
             
             layout
                 .Children
-                .Add(new Image(Source = FileImageSource.op_Implicit "shop"))
+                .Add(new Image(Source = FileImageSource.op_Implicit "shop_black"))
 
             layout
                 .Children
@@ -186,12 +236,15 @@ module Store =
 
         do
             let vm = new StoreDetailViewModel()
-            self.Detail <- new NavigationPage(StoreDetailPage(vm))
-            self.Master <- new StoreMasterPage(stores, (fun (page, selection) -> 
-                vm.Title <- selection.Name
-                vm.Baskets <- selection.Baskets |> List.map BasketViewModel.FromDomain
-                self.IsPresented <- false))
-         
+            self.Detail <- 
+                new NavigationPage(StoreDetailPage(vm))
+
+            self.Master <- 
+                new StoreMasterPage(stores, (fun (page, selection) -> 
+                    vm.Title <- selection.Name
+                    vm.Baskets <- selection.Baskets |> List.map BasketViewModel.FromDomain
+                    self.IsPresented <- false))
+             
 type App() = 
     inherit Application()
 
