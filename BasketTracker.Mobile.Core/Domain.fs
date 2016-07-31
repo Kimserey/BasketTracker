@@ -15,18 +15,18 @@ module Domain =
                               Items = 
                                 [
                                     { Name = "Apple"
-                                      Amount = 2.05m}
+                                      Amount = 1.05m}
                                     { Name = "Bread"
-                                      Amount = 3.5m}
+                                      Amount = 1.5m}
                                 ] }
                              
                             { Date = DateTime.Now.AddDays(-1.)
                               Items = 
                                 [
                                   { Name = "Apple"
-                                    Amount = 2.05m}
+                                    Amount = 12.05m}
                                   { Name = "Bread"
-                                    Amount = 3.5m}
+                                    Amount = 13.5m}
                                 ] }
                         ]}
 
@@ -39,16 +39,16 @@ module Domain =
                                   { Name = "Apple"
                                     Amount = 2.05m}
                                   { Name = "Bread"
-                                    Amount = 3.5m}
+                                    Amount = 2.5m}
                                 ] }
                              
                             { Date = DateTime.Now.AddDays(-1.)
                               Items = 
                                 [
                                   { Name = "Apple"
-                                    Amount = 2.05m}
+                                    Amount = 22.05m}
                                   { Name = "Bread"
-                                    Amount = 3.5m}
+                                    Amount = 23.5m}
                                 ] }
                         ]}
 
@@ -59,7 +59,7 @@ module Domain =
                               Items = 
                                 [
                                   { Name = "Apple"
-                                    Amount = 2.05m}
+                                    Amount = 3.05m}
                                   { Name = "Bread"
                                     Amount = 3.5m}
                                 ] }
@@ -68,9 +68,9 @@ module Domain =
                               Items = 
                                 [
                                   { Name = "Apple"
-                                    Amount = 2.05m}
+                                    Amount = 32.05m}
                                   { Name = "Bread"
-                                    Amount = 3.5m}
+                                    Amount = 33.5m}
                                 ] }
                         ]}
                 ]
