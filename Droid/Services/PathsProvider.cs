@@ -2,13 +2,21 @@
 using Xamarin.Forms;
 using BasketTracker.Mobile.Core;
 
+[assembly: Dependency(typeof(SQLite.Net.Platform.XamarinAndroid.SQLitePlatformAndroid))]
+[assembly: Dependency(typeof(BasketTracker.Droid.PathsProvider))]
 namespace BasketTracker.Droid
 {
-	public class PathsProvider
+	public class PathsProvider: IPathsProvider
 	{
-		public PathsProvider()
-		{
-		}
-	}
+		public PathsProvider() {}
+
+        public string ApplicationData
+        {
+            get
+            {
+                return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            }
+        }
+    }
 }
 
