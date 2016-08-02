@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -58,11 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain.fs" />
+    <Compile Include="Platform.fs" />
     <Compile Include="Xamarin.Forms.Extensions.fs" />
+    <Compile Include="Storage.fs" />
     <Compile Include="ViewModels.fs" />
     <Compile Include="App.fs" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Storage.fs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

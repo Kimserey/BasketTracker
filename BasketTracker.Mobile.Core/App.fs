@@ -6,26 +6,6 @@ open System.Collections.Generic
 open System.ComponentModel
 open Xamarin.Forms
 
-//type StoreDetailPage(defaultStore: Store) as self =
-//    inherit NavigationPage()
-
-//    let item =
-//        new ToolbarItem(
-//            "New",
-//            "plus",
-//            fun () ->
-//                self.PushAsync(new BasketEntry(defaultStore.Name))
-//                |> Async.AwaitTask
-//                |> Async.StartImmediate)
-
-//    do
-//        base.ToolbarItems.Add(item)
-
-//    override self.OnBindingContextChanged() =
-//        let store = self.BindingContext :?> Store
-//        base.CurrentPage.BindingContext <- store
-
-
 
 type ItemViewCell() =
     inherit ViewCell()
@@ -187,4 +167,5 @@ type App() =
     inherit Application()
 
     do 
+        use conn = Storage.getConnection()
         base.MainPage <- new Root()
