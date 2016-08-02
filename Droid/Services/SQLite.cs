@@ -1,3 +1,4 @@
 ﻿using Xamarin.Forms;
+using SQLite.Net.Platform.XamarinAndroid;
 
-[assembly: Dependency(typeof(SQLite.Net.Platform.XamarinAndroid.SQLitePlatformAndroid))]
+[assembly: Dependency(typeof(SQLitePlatformAndroid))]
