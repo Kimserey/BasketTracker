@@ -26,11 +26,11 @@ module Storage =
                 }
             |> ignore
             
-        static member Update (storeId: int) name (conn: SQLiteConnection) = 
-            conn.RunInTransaction(fun ()->
-                let store = conn.Get<Store>(storeId)
-                conn.Update { store with Name = name } |> ignore
-            )
+        static member Update store name (conn: SQLiteConnection) = 
+            conn.Update { store with Name = name } |> ignore
+
+        static member Archive store (conn: SQLiteConnection) =
+            conn.Update { store with Archived = true } |> ignore
 
         static member Get (storeId: int) (conn: SQLiteConnection) = 
             conn.Get<Store>(storeId)
