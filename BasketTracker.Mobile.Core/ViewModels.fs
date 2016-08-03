@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel
 open Xamarin.Forms
+open Domain
 
 type ViewModelBase() =
     let propertyChanging = new Event<PropertyChangingEventHandler, PropertyChangingEventArgs>()

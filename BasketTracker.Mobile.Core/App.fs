@@ -5,7 +5,8 @@ open System.Collections
 open System.Collections.Generic
 open System.ComponentModel
 open Xamarin.Forms
-
+open Storage
+open Domain
 
 type ItemViewCell() =
     inherit ViewCell()
@@ -68,7 +69,6 @@ type StoreDetailPage(vm: StoreDetailViewModel) as self =
         |> ListView.SetTemplateBinding TextCell.DetailProperty "Amount"
         |> ListView.SetBinding' ListView.ItemsSourceProperty "Baskets"
 
-
     do
         base.BindingContext <- vm
         base.SetBinding(ContentPage.TitleProperty, "Title")
@@ -121,7 +121,8 @@ type StoreMasterPage(stores, onSelect) as self =
 
         list
             .ItemSelected
-            .Add(fun e -> onSelect(self, e.SelectedItem :?> Store))
+            .Add(fun e -> 
+                onSelect(self, e.SelectedItem :?> Store))
         list
             .ItemTemplate
             .SetBinding(TextCell.TextProperty, "Name")
@@ -141,7 +142,7 @@ type StoreMasterPage(stores, onSelect) as self =
 
         base.Content <- layout
 
-type Root() as self =
+type Root(factory) as self =
     inherit MasterDetailPage()
 
     let stores =
@@ -163,9 +164,8 @@ type Root() as self =
                 vm.Baskets <- selection.Baskets |> List.map BasketViewModel.FromDomain
                 self.IsPresented <- false))
              
-type App() = 
+type App'() = 
     inherit Application()
 
     do 
-        use conn = Storage.getConnection()
-        base.MainPage <- new Root()
+        base.MainPage <- new Root(Storage.factory)

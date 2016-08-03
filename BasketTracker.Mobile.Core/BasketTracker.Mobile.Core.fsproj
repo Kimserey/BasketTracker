@@ -46,6 +46,7 @@
     <Compile Include="Storage.fs" />
     <Compile Include="ViewModels.fs" />
     <Compile Include="App.fs" />
+    <Compile Include="App2.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <None Include="packages.config" />
   </ItemGroup>
