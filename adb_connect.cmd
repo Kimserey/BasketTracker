@@ -1,0 +1,1 @@
+C:\Users\"Kimserey Lam"\AppData\Local\Android\android-sdk\platform-tools\adb connect 10.71.34.101

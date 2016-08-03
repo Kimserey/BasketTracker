@@ -6,6 +6,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasketTracker.Mobile.Core",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasketTracker.Droid", "Droid\BasketTracker.Droid.csproj", "{F73F6379-839E-41FF-91DE-C782F56F7577}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{7D1CA4CF-0498-466B-B217-3F03C7491D6C}"
+	ProjectSection(SolutionItems) = preProject
+		adb_connect.cmd = adb_connect.cmd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

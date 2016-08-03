@@ -94,7 +94,7 @@ type StoreDetailPage(vm: StoreDetailViewModel) as self =
                 |> Async.StartImmediate)
 
 
-type StoreMasterPage(stores, onSelect) as self =
+type StoreMasterPage'(stores, onSelect) as self =
     inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit "hamburger")
 
     let (Stores stores) = 
@@ -142,7 +142,7 @@ type StoreMasterPage(stores, onSelect) as self =
 
         base.Content <- layout
 
-type Root(factory) as self =
+type Root() as self =
     inherit MasterDetailPage()
 
     let stores =
@@ -159,7 +159,7 @@ type Root(factory) as self =
             new NavigationPage(StoreDetailPage(vm))
 
         self.Master <- 
-            new StoreMasterPage(stores, (fun (page, selection) -> 
+            new StoreMasterPage'(stores, (fun (page, selection) -> 
                 vm.Title <- selection.Name
                 vm.Baskets <- selection.Baskets |> List.map BasketViewModel.FromDomain
                 self.IsPresented <- false))
@@ -168,4 +168,4 @@ type App'() =
     inherit Application()
 
     do 
-        base.MainPage <- new Root(Storage.factory)
+        base.MainPage <- new Root()

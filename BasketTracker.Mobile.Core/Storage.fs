@@ -25,13 +25,18 @@ module Storage =
                     Archived = false
                 }
             |> ignore
-
-        static member Get (conn: SQLiteConnection) = 
-            let sql = """
-                SELECT * FROM store WHERE archived <> 1 ORDER BY name ASC
-            """
             
-            conn.DeferredQuery<Store>(sql, [||]) |> Seq.toList
+        static member Update (storeId: int) name (conn: SQLiteConnection) = 
+            conn.RunInTransaction(fun ()->
+                let store = conn.Get<Store>(storeId)
+                conn.Update { store with Name = name } |> ignore
+            )
+
+        static member Get (storeId: int) (conn: SQLiteConnection) = 
+            conn.Get<Store>(storeId)
+
+        static member List (conn: SQLiteConnection) = 
+            conn.DeferredQuery<Store>("SELECT * FROM store WHERE archived <> 1 ORDER BY name ASC", [||]) |> Seq.toList
 
     [<CLIMutable; Table "basket">]
     type Basket = {
@@ -50,24 +55,18 @@ module Storage =
         [<Column "archived">]                      Archived: bool
     }
 
-    type ExecuteQuery = SQLiteConnection -> unit
-    type SQLiteConnectionFactory = SQLiteConnectionFactory of (ExecuteQuery -> unit)
-        with
-            member x.ExecuteQuery =
-                let (SQLiteConnectionFactory exec) = x
-                exec
+    type SQLiteConnectionFactory = unit -> SQLiteConnection
 
-    let factory =
+    let connectionFactory: SQLiteConnectionFactory =
         let appData = 
             DependencyService.Get<IPathsProvider>().ApplicationData
         
         let platform = 
             DependencyService.Get<ISQLitePlatform>()
 
-        fun (execute: ExecuteQuery) ->
-            use conn = new SQLiteConnection(platform, Path.Combine(appData, "data.db"))
+        fun () ->
+            let conn = new SQLiteConnection(platform, Path.Combine(appData, "data.db"))
             conn.CreateTable<Store>() |> ignore
             conn.CreateTable<Basket>() |> ignore
             conn.CreateTable<Item>() |> ignore
-            execute conn
-        |> SQLiteConnectionFactory
+            conn
