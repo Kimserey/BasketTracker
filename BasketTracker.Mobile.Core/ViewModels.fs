@@ -33,7 +33,6 @@ type PageViewModel() =
             title <- value
             self.OnPropertyChanged "Title"
 
-
 type StoreListViewModel() =
     inherit PageViewModel()
 
@@ -66,10 +65,10 @@ and AddStoreViewModel(addStore) =
         with get() =
             new Command<string>(fun name -> addStore name)
 
-and UpdateStoreViewModel(name, updateName) =
+and UpdateStoreViewModel(store: Store) =
     inherit PageViewModel()
 
-    let mutable name: string = name
+    let mutable name: string = store.Name
 
     do
         base.Title <- "Update store"
@@ -83,7 +82,7 @@ and UpdateStoreViewModel(name, updateName) =
 
     member self.UpdateCommand
         with get() =
-            new Command<string>(fun name -> updateName name)
+            new Command<string>(fun name -> store.UpdateName name)
 
 
 and StoreCellViewModel(store: Store) =
@@ -99,90 +98,21 @@ and StoreCellViewModel(store: Store) =
         store.Name
 
     member self.GetUpdateViewModel() =
-        new UpdateStoreViewModel(store.Name, store.UpdateName)
+        new UpdateStoreViewModel(store)
+
+    member self.NavigateToBaskListViewModel() =
+        new BasketListViewModel(store)
 
     member self.ArchiveCommand
         with get() =
             new Command(fun () -> store.Archive())
 
+and BasketListViewModel(store: Store) as self =
+    inherit PageViewModel()
 
+    do
+        self.Title <- store.Name
 
-
-
-
-
-
-//type StoreDetailViewModel() = 
-//    inherit ViewModelBase()
-//
-//    let mutable title = ""
-//    let mutable baskets: BasketViewModel list = []
-//
-//    member self.Title 
-//        with get() = title
-//        and  set value = 
-//            self.OnPropertyChanging "Title"
-//            title <- value
-//            self.OnPropertyChanged "Title"
-//
-//    member self.Baskets
-//        with get() = baskets
-//        and set value =
-//            self.OnPropertyChanging "Baskets"
-//            baskets <- value
-//            self.OnPropertyChanged "Baskets"
-//        
-//and BasketViewModel = {
-//    Date: DateTime
-//    Amount: Decimal
-//    Items: BasketItem list
-//} with
-//    static member FromDomain (basket: Basket) =
-//        let sum = 
-//            basket.Items 
-//            |> List.sumBy (fun i -> i.Amount)
-//
-//        { Date   = basket.Date
-//          Amount = sum
-//          Items = basket.Items }
-//
-//
-//type BasketDetailViewModel() =
-//    inherit ViewModelBase()
-//
-//    let mutable store = ""
-//    let mutable date = DateTime.MinValue
-//    let mutable items: BasketItem list = []
-//
-//    member self.Store
-//        with get() = store
-//        and set value =
-//            self.OnPropertyChanging "Store"
-//            store <- value
-//            self.OnPropertyChanged "Store"
-//    
-//    member self.Date
-//        with get() = date
-//        and set value =
-//            self.OnPropertyChanging "Date"
-//            date <- value
-//            self.OnPropertyChanged "Date"
-//
-//    member self.Sum
-//        with get() =
-//            items 
-//            |> List.sumBy (fun item -> item.Amount)
-//
-//    member self.Items
-//        with get() = items
-//        and set value =
-//            self.OnPropertyChanging "Items"
-//            items <- value
-//            self.OnPropertyChanged "Items"
-//            self.OnPropertyChanged "Sum"
-//
-//    member self.AddItem item =
-//        self.Items <- item::items
-//
-//    member self.RemoveItem item =
-//        self.Items <- (items |> List.filter ((<>) item))
+    member self.List
+        with get() =
+            store.BasketList()

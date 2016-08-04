@@ -54,11 +54,31 @@ module Storage =
     [<CLIMutable; Table "item">]
     type SQLItem = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
-        [<Column "date">]                          Date: DateTime
         [<Column "amount">]                        Amount: decimal
         [<Column "basketid"; Indexed>]             BasketId: int
         [<Column "archived">]                      Archived: bool
     }
+
+    [<CLIMutable>]
+    type SQLBasketQueryResult = {
+        [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
+        [<Column "date">]                          Date: DateTime
+        [<Column "total">]                         Total: decimal
+    } with
+        static member List (storeId: int) (conn: SQLiteConnection) =
+            conn.DeferredQuery<SQLBasketQueryResult>("""
+                SELECT 
+                    b.id id, 
+                    b.date date, 
+                    SUM(i.amount) total 
+                FROM basket b
+                LEFT JOIN item i ON b.id = i.basketid
+                WHERE 
+                    b.archived <> 1
+                    AND i.archived <> 1 
+                    AND b.storeid = ?
+                ORDER BY date DESC
+            """, [| box storeId |]) |> Seq.toList
 
     type SQLiteConnectionFactory = unit -> SQLiteConnection
 

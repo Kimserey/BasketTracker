@@ -8,31 +8,43 @@ open Xamarin.Forms
 open Storage
 open Model
 open SQLite.Net
-
-type BasketListPage(vm: BasketListViewModel) as self =
-    inherit ContentPage()
-    
-    let listView = 
-        new ListView(ItemTemplate = new DataTemplate(typeof<TextCell>))
-    
-    let label = 
-        new Label()
-
-    let layout = 
-        let layout = new StackLayout()
-        layout.Children.Add(label)
-        layout.Children.Add(listView)
-        layout
-
-    do
-        self.BindingContext <- vm
-
-        self.SetBinding(ContentPage.TitleProperty, "Title")
-        label.SetBinding(Label.TextProperty, "Total")
-        listView.SetBinding(ListView.ItemsSourceProperty, "List")
-
-        self.Content <- layout
-
+//
+//type StoreViewModel(store: Storage.Store, connectionFactory: SQLiteConnectionFactory, host: Page) =
+//    inherit ViewModelBase()
+//
+//    let mutable name = store.Name
+//    let mutable host = host
+//    
+//    member self.ConnectionFactory =
+//        connectionFactory
+//
+//    member self.Host
+//        with get()    = host
+//        and set value = host <- value
+//
+//    member self.Name
+//        with get () = name
+//        and set value =
+//            self.OnPropertyChanging("Name") 
+//            name <- value
+//            self.OnPropertyChanged("Name")
+//
+//    member self.EditName() =
+//        use conn = connectionFactory() 
+//        Storage.SQLStore.Update store.Id name conn
+//
+//    member self.Archive() =
+//        use conn = connectionFactory() 
+//        Storage.SQLStore.Archive store.Id conn
+//
+//    static member ToViewModel connectionFactory host store =
+//        new StoreViewModel(store, connectionFactory, host)
+//    
+//type StorePage() as self =
+//    inherit ContentPage()
+//    
+//    do
+//        base.SetBinding(ContentPage.TitleProperty, "Name")
 
 type UpdateStorePage() as self =
     inherit ContentPage()
@@ -108,10 +120,11 @@ type StoreViewCell() as self =
 
     do
         edit.Clicked.Add(fun e ->
+            let host = self.Context.Host :?> StoreListPage
             let page = new UpdateStorePage()
             page.BindingContext <- self.Context.GetUpdateViewModel()
 
-            self.ParentView.Navigation.PushAsync(page)
+            host.Navigation.PushAsync(page)
             |> Async.AwaitTask
             |> Async.StartImmediate
         )
@@ -133,11 +146,11 @@ type StoreViewCell() as self =
             unbox<StoreCellViewModel> self.BindingContext
     
     override self.OnTapped() =
-        self.ParentView.Navigation.PushAsync(
-            new BasketListPage(
-                self.Context.NavigateToBaskListViewModel()
-            )
-        )
+        let host = self.Context.Host :?> StoreListPage
+        let page = new UpdateStorePage()
+        page.BindingContext <- self.Context.GetUpdateViewModel()
+
+        host.Navigation.PushAsync(page)
         |> Async.AwaitTask
         |> Async.StartImmediate
 
