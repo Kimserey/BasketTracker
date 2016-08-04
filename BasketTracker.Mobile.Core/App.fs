@@ -6,165 +6,190 @@ open System.Collections.Generic
 open System.ComponentModel
 open Xamarin.Forms
 open Storage
-
-//type ItemViewCell() =
-//    inherit ViewCell()
+open Model
+open SQLite.Net
 //
-//    let title =
-//        new Label()
-//        |> Label.SetBinding' Label.TextProperty "Name"
+//type StoreViewModel(store: Storage.Store, connectionFactory: SQLiteConnectionFactory, host: Page) =
+//    inherit ViewModelBase()
+//
+//    let mutable name = store.Name
+//    let mutable host = host
 //    
-//    let amount =
-//        new Label()
-//        |> Label.SetBinding' Label.TextProperty "Amount"
+//    member self.ConnectionFactory =
+//        connectionFactory
 //
-//    let layout =
-//        new StackLayout(Orientation = StackOrientation.Horizontal)
-//        |> StackLayout.AddChild title
-//        |> StackLayout.AddChild amount
+//    member self.Host
+//        with get()    = host
+//        and set value = host <- value
 //
-//    let menuItem =
-//        new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin", IsDestructive = true)
-//        |> MenuItem.SetBinding' MenuItem.CommandProperty "Delete"
+//    member self.Name
+//        with get () = name
+//        and set value =
+//            self.OnPropertyChanging("Name") 
+//            name <- value
+//            self.OnPropertyChanged("Name")
 //
-//    do
-//        base.View <- layout
-//        base.ContextActions.Add(menuItem)
+//    member self.EditName() =
+//        use conn = connectionFactory() 
+//        Storage.SQLStore.Update store.Id name conn
 //
-//type BasketDetailPage(vm: BasketDetailViewModel) =
-//    inherit ContentPage(Title = "Basket")
+//    member self.Archive() =
+//        use conn = connectionFactory() 
+//        Storage.SQLStore.Archive store.Id conn
 //
-//    let itemList = 
-//        new ListView(ItemsSource = vm.Items, ItemTemplate = new DataTemplate(typeof<ItemViewCell>))
+//    static member ToViewModel connectionFactory host store =
+//        new StoreViewModel(store, connectionFactory, host)
 //    
-//    let header =
-//        new StackLayout()
-//        |> StackLayout.AddChild (new Label(Text = vm.Store))
-//        |> StackLayout.AddChild (new Label(Text = vm.Date.ToString("dd MMM yyyy")))
-//        |> StackLayout.AddChild (new Label() |> Label.SetBinding' Label.TextProperty "Sum")
-//
-//    let pageLayout =
-//        new StackLayout(Padding = new Thickness(10.))
-//        |> StackLayout.AddChild header
-//        |> StackLayout.AddChild itemList
-//    
-//    let toolBarItem =
-//        new ToolbarItem(
-//            "Add new item",
-//            "plus",
-//            fun () -> ())
-//
-//    do
-//        base.ToolbarItems.Add(toolBarItem)
-//        base.BindingContext <- vm
-//        base.Content <- pageLayout
-//
-//type StoreDetailPage(vm: StoreDetailViewModel) as self =
+//type StorePage() as self =
 //    inherit ContentPage()
-//
-//    let basketList = 
-//        new ListView(ItemTemplate = new DataTemplate(typeof<TextCell>))
-//        |> ListView.SetTemplateBinding TextCell.TextProperty "Date"
-//        |> ListView.SetTemplateBinding TextCell.DetailProperty "Amount"
-//        |> ListView.SetBinding' ListView.ItemsSourceProperty "Baskets"
-//
-//    do
-//        base.BindingContext <- vm
-//        base.SetBinding(ContentPage.TitleProperty, "Title")
-//        base.Content <- basketList
-//
-//        basketList
-//            .ItemSelected
-//            .Add(fun e -> 
-//                let selection = e.SelectedItem :?> BasketViewModel
-//
-//                let basketVM =
-//                    new BasketDetailViewModel(
-//                        Store = vm.Title,
-//                        Date = selection.Date,
-//                        Items = selection.Items
-//                    )
-//            
-//                let basketDetail = 
-//                    new BasketDetailPage(basketVM)
-//
-//                self.Navigation.PushAsync(basketDetail)
-//                |> Async.AwaitTask
-//                |> Async.StartImmediate)
-//
-//
-//type StoreMasterPage'(stores, onSelect) as self =
-//    inherit ContentPage(Title = "Stores", Icon = FileImageSource.op_Implicit "hamburger")
-//
-//    let (Stores stores) = 
-//        stores
-//
-//    let title =
-//        new StackLayout(
-//            Padding = new Thickness(10.),
-//            Orientation = StackOrientation.Horizontal)
-//        |> StackLayout.AddChild (new Image(Source = FileImageSource.op_Implicit "shop_black"))
-//        |> StackLayout.AddChild 
-//                (new Label(
-//                    Text = "Stores",
-//                    FontSize = Device.GetNamedSize(NamedSize.Medium, typeof<Label>),
-//                    HorizontalOptions = LayoutOptions.StartAndExpand,
-//                    VerticalOptions = LayoutOptions.CenterAndExpand))
-//
-//    let menu = 
-//        let list =
-//            new ListView(
-//                ItemsSource = stores,
-//                ItemTemplate = new DataTemplate(typeof<TextCell>),
-//                VerticalOptions = LayoutOptions.FillAndExpand)
-//
-//        list
-//            .ItemSelected
-//            .Add(fun e -> 
-//                onSelect(self, e.SelectedItem :?> Store))
-//        list
-//            .ItemTemplate
-//            .SetBinding(TextCell.TextProperty, "Name")
-//        list
 //    
-//    let layout =
-//        new StackLayout()
-//
 //    do
-//        layout
-//            .Children
-//            .Add(title)
+//        base.SetBinding(ContentPage.TitleProperty, "Name")
+
+type UpdateStorePage() as self =
+    inherit ContentPage()
+
+    let entry =
+        new Entry(Placeholder = "Enter a store name here")
+
+    let save =
+        new ToolbarItem(
+            "Save your changes", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    do
+        self.SetBinding(ContentPage.TitleProperty, "Title")
+        entry.SetBinding(Entry.TextProperty, "Name")
+
+        save.SetBinding(ToolbarItem.CommandProperty, "UpdateCommand")
+        save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
+
+        self.ToolbarItems.Add(save)
+        self.Content <- new StackLayout() |> StackLayout.AddChild entry
+
+
+type AddStorePage(vm: AddStoreViewModel) as self =
+    inherit ContentPage()
+    
+    let entry =
+        new Entry(Placeholder = "Enter a store name here")
+
+    let save =
+        new ToolbarItem(
+            "Save this store", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    do
+        self.BindingContext <- vm
+
+        self.SetBinding(ContentPage.TitleProperty, "Title")
+        entry.SetBinding(Entry.TextProperty, "Name")
+
+        save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
+        save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
+
+        base.ToolbarItems.Add(save)
+        base.Content <- new StackLayout() |> StackLayout.AddChild entry
+
+type StoreViewCell() as self =
+    inherit ViewCell()
+
+    let edit =
+        new MenuItem(
+            Text = "Edit",  
+            Icon = FileImageSource.op_Implicit "pencil")
+
+    let delete =
+        new MenuItem(
+            Text = "Delete", 
+            Icon = FileImageSource.op_Implicit "bin")
+
+    let layout =
+        new StackLayout()
+        |> StackLayout.AddChild (new Label() |> Label.SetBinding' Label.TextProperty "Name")
+
+    do
+        edit.Clicked.Add(fun e ->
+            let host = self.Context.Host :?> StoreListPage
+            let page = new UpdateStorePage()
+            page.BindingContext <- self.Context.GetUpdateViewModel()
+
+            host.Navigation.PushAsync(page)
+            |> Async.AwaitTask
+            |> Async.StartImmediate
+        )
+
+        delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
+        delete.Clicked.Add(fun e ->
+            let vm = self.BindingContext :?> StoreCellViewModel
+            let host = vm.Host :?> StoreListPage
+            host.Refresh()
+        )
+
+        self.ContextActions.Add(edit)
+        self.ContextActions.Add(delete)
+
+        self.View <- layout
+
+    member self.Context
+        with get(): StoreCellViewModel =
+            unbox<StoreCellViewModel> self.BindingContext
+
+and StoreListPage(vm: StoreListViewModel) as self =
+    inherit ContentPage(Title = "Stores")
+
+    let listView = 
+        new ListView(ItemTemplate = new DataTemplate(typeof<StoreViewCell>))
+    
+    let add =
+        new ToolbarItem(
+            "Add new store", 
+            "plus", 
+            fun () ->
+                let addPage = new AddStorePage(self.Context.NavigateToAddStoreViewModel())
+                self.Navigation.PushAsync(addPage)
+                |> Async.AwaitTask
+                |> Async.StartImmediate)
+    
+    do
+        self.BindingContext <- vm
+
+        self.ToolbarItems.Add(add)
+        self.Content <- listView
+//        listView.ItemTapped.Add(fun e ->
+//            let page = new StorePage()
+//            let vm = e.Item :?> StoreViewModel
+//            vm.Host <- page
+//            page.BindingContext <- vm
 //
-//        layout
-//            .Children
-//            .Add(menu)
-//
-//        base.Content <- layout
-//
-//type Root() as self =
-//    inherit MasterDetailPage()
-//
-//    let stores =
-//        Stores.Sample
-//    
-//    let defaultStore =
-//        let (Stores stores) = stores
-//        stores.[0]
-//
-//    let vm = 
-//        new StoreDetailViewModel(Title = defaultStore.Name, Baskets = (defaultStore.Baskets |> List.map BasketViewModel.FromDomain))
-//    do
-//        self.Detail <- 
-//            new NavigationPage(StoreDetailPage(vm))
-//
-//        self.Master <- 
-//            new StoreMasterPage'(stores, (fun (page, selection) -> 
-//                vm.Title <- selection.Name
-//                vm.Baskets <- selection.Baskets |> List.map BasketViewModel.FromDomain
-//                self.IsPresented <- false))
-//             
-//type App'() = 
-//    inherit Application()
-//
-//    do 
-//        base.MainPage <- new Root()
+//            self.Navigation.PushAsync(page)
+//            |> Async.AwaitTask
+//            |> Async.StartImmediate
+//            listView.SelectedItem <- null)
+            
+    member self.Refresh() =
+       listView.ItemsSource <- (self.Context.List |> List.map (fun x -> x.Host <- self; x))
+
+    override self.OnAppearing() =
+        self.Refresh()
+
+    member self.Context
+        with get(): StoreListViewModel =
+            unbox<StoreListViewModel> self.BindingContext
+
+
+type App() = 
+    inherit Application()
+
+    do 
+        base.MainPage <- new NavigationPage(new StoreListPage(new StoreListViewModel()))

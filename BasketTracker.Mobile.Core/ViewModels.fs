@@ -34,35 +34,20 @@ type PageViewModel() =
             self.OnPropertyChanged "Title"
 
 
-type StoreListViewModel(getList) =
+type StoreListViewModel() =
     inherit PageViewModel()
+
+    let storeList = 
+        new StoreList(Storage.connectionFactory)
+    
+    member self.NavigateToAddStoreViewModel() =
+        new AddStoreViewModel(storeList.Add)
 
     member self.List
         with get() =
-            getList()
-            |> List.map (fun (s: StoreSummary) -> 
-                let archive() =
-                    s.GetStore().Archive()
+            storeList.List() |> List.map (fun (s: Store) -> new StoreCellViewModel(s))
 
-                new StoreSummaryViewModel(s.Name, archive))
-
-and StoreSummaryViewModel(storeName, archive) =
-    inherit ViewModelBase()
-
-    let mutable host: Page = Unchecked.defaultof<Page>
-
-    member self.Host
-        with get() = host
-        and set value = host <- value
-
-    member self.Name = 
-        storeName
-
-    member self.ArchiveCommand
-        with get() =
-            new Command(fun () -> archive())
-
-type AddStoreViewModel(addStore) =
+and AddStoreViewModel(addStore) =
     inherit PageViewModel()
 
     let mutable name = ""
@@ -80,6 +65,45 @@ type AddStoreViewModel(addStore) =
     member self.AddCommand
         with get() =
             new Command<string>(fun name -> addStore name)
+
+and UpdateStoreViewModel(name, updateName) =
+    inherit PageViewModel()
+
+    let mutable name: string = name
+
+    do
+        base.Title <- "Update store"
+    
+    member self.Name 
+        with get() = name
+        and  set value = 
+            self.OnPropertyChanging "Name"
+            name <- value
+            self.OnPropertyChanged "Name"
+
+    member self.UpdateCommand
+        with get() =
+            new Command<string>(fun name -> updateName name)
+
+
+and StoreCellViewModel(store: Store) =
+    inherit ViewModelBase()
+
+    let mutable host: Page = Unchecked.defaultof<Page>
+
+    member self.Host
+        with get() = host
+        and set value = host <- value
+
+    member self.Name = 
+        store.Name
+
+    member self.GetUpdateViewModel() =
+        new UpdateStoreViewModel(store.Name, store.UpdateName)
+
+    member self.ArchiveCommand
+        with get() =
+            new Command(fun () -> store.Archive())
 
 
 

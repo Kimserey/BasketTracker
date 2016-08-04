@@ -10,22 +10,11 @@ module Model =
         member self.List() =
             use conn = connectionFactory()
             SQLStore.List conn
-            |> List.map (fun s -> new StoreSummary(s.Id, s.Name, connectionFactory))
+            |> List.map (fun s -> new Store(s.Id, s.Name, s.Archived, connectionFactory))
 
         member self.Add name =
             use conn = connectionFactory()
             SQLStore.Add name conn
-
-    and StoreSummary(storeId, name, connectionFactory) =
-        
-        member self.Id = storeId
-
-        member self.Name = name 
-
-        member self.GetStore() =
-            use conn = connectionFactory()
-            let store = SQLStore.Get storeId conn
-            new Store(store.Id, store.Name, store.Archived, connectionFactory)
 
     and Store(storeId, name, archived, connectionFactory: SQLiteConnectionFactory) =
         
