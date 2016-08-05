@@ -6,10 +6,10 @@ open System.Collections.Generic
 open System.ComponentModel
 open Xamarin.Forms
 open Storage
-open Model
 open SQLite.Net
+open Models
 
-type BasketListPage(vm: BasketListViewModel) as self =
+type BasketListPage() as self =
     inherit ContentPage()
     
     let listView = 
@@ -25,12 +25,9 @@ type BasketListPage(vm: BasketListViewModel) as self =
         layout
 
     do
-        self.BindingContext <- vm
-
         self.SetBinding(ContentPage.TitleProperty, "Title")
         label.SetBinding(Label.TextProperty, "Total")
         listView.SetBinding(ListView.ItemsSourceProperty, "List")
-
         self.Content <- layout
 
 
@@ -61,7 +58,7 @@ type UpdateStorePage() as self =
         self.Content <- new StackLayout() |> StackLayout.AddChild entry
 
 
-type AddStorePage(vm: AddStoreViewModel) as self =
+type AddStorePage() as self =
     inherit ContentPage()
     
     let entry =
@@ -78,16 +75,16 @@ type AddStorePage(vm: AddStoreViewModel) as self =
                 |> Async.StartImmediate)
 
     do
-        self.BindingContext <- vm
-
         self.SetBinding(ContentPage.TitleProperty, "Title")
         entry.SetBinding(Entry.TextProperty, "Name")
 
         save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
         save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
 
+
         base.ToolbarItems.Add(save)
         base.Content <- new StackLayout() |> StackLayout.AddChild entry
+
 
 type StoreViewCell() as self =
     inherit ViewCell()
@@ -107,21 +104,10 @@ type StoreViewCell() as self =
         |> StackLayout.AddChild (new Label() |> Label.SetBinding' Label.TextProperty "Name")
 
     do
-        edit.Clicked.Add(fun e ->
-            let page = new UpdateStorePage()
-            page.BindingContext <- self.Context.GetUpdateViewModel()
-
-            self.ParentView.Navigation.PushAsync(page)
-            |> Async.AwaitTask
-            |> Async.StartImmediate
-        )
-
+        edit.Clicked.Add(fun e -> self.Context.GoToEdit self.ParentView.Navigation self.Context)
+        
         delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
-        delete.Clicked.Add(fun e ->
-            let vm = self.BindingContext :?> StoreCellViewModel
-            let host = vm.Host :?> StoreListPage
-            host.Refresh()
-        )
+        delete.Clicked.Add(fun _ -> self.Context.RefreshStoreList())
 
         self.ContextActions.Add(edit)
         self.ContextActions.Add(delete)
@@ -129,19 +115,10 @@ type StoreViewCell() as self =
         self.View <- layout
 
     member self.Context
-        with get(): StoreCellViewModel =
-            unbox<StoreCellViewModel> self.BindingContext
-    
-    override self.OnTapped() =
-        self.ParentView.Navigation.PushAsync(
-            new BasketListPage(
-                self.Context.NavigateToBaskListViewModel()
-            )
-        )
-        |> Async.AwaitTask
-        |> Async.StartImmediate
+        with get(): StoreViewModel =
+            unbox<StoreViewModel> self.BindingContext
 
-and StoreListPage(vm: StoreListViewModel) as self =
+and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
     inherit ContentPage(Title = "Stores")
 
     let listView = 
@@ -151,30 +128,50 @@ and StoreListPage(vm: StoreListViewModel) as self =
         new ToolbarItem(
             "Add new store", 
             "plus", 
-            fun () ->
-                let addPage = new AddStorePage(self.Context.NavigateToAddStoreViewModel())
-                self.Navigation.PushAsync(addPage)
-                |> Async.AwaitTask
-                |> Async.StartImmediate)
+            fun () -> goToAdd self.Navigation)
     
     do
-        self.BindingContext <- vm
         self.ToolbarItems.Add(add)
         self.Content <- listView
             
+        listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation <| unbox<'TStore> e.Item)
+            
     member self.Refresh() =
-       listView.ItemsSource <- (self.Context.List |> List.map (fun x -> x.Host <- self; x))
+        listView.ItemsSource <- 
+            getStoreList() |> List.map(fun (s: Store) -> new StoreViewModel(s.Id, s.Name, goToEdit, self.Refresh))
 
     override self.OnAppearing() =
         self.Refresh()
-
-    member self.Context
-        with get(): StoreListViewModel =
-            unbox<StoreListViewModel> self.BindingContext
-
-
+        
 type App() = 
     inherit Application()
 
+    let addPage = new AddStorePage()
+    let basketListPage = new BasketListPage()
+    let updateStorePage = new UpdateStorePage()
+
+    let vm = new PageViewModel(Title = "Stores")
+    
+    let page = 
+        new StoreListPage<StoreViewModel>(
+            Stores.list,
+            (fun nav ->
+                addPage.BindingContext <- new AddStoreViewModel(Stores.add)
+                nav.PushAsync(addPage)
+                |> Async.AwaitTask
+                |> Async.StartImmediate),
+            (fun nav store ->
+                updateStorePage.BindingContext <- new UpdateStoreViewModel(store.Name, Stores.update store.Id)
+                nav.PushAsync(updateStorePage)
+                |> Async.AwaitTask
+                |> Async.StartImmediate),
+            (fun nav store ->
+                basketListPage.BindingContext <- new PageViewModel(Title = store.Name)
+                nav.PushAsync(basketListPage)
+                |> Async.AwaitTask
+                |> Async.StartImmediate)
+        )
+
     do 
-        base.MainPage <- new NavigationPage(new StoreListPage(new StoreListViewModel()))
+        page.BindingContext <- vm
+        base.MainPage <- new NavigationPage(page)

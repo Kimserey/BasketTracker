@@ -42,8 +42,8 @@
   <ItemGroup>
     <Compile Include="Xamarin.Forms.Extensions.fs" />
     <Compile Include="Platform.fs" />
+    <Compile Include="Models.fs" />
     <Compile Include="Storage.fs" />
-    <Compile Include="Model.fs" />
     <Compile Include="ViewModels.fs" />
     <Compile Include="App.fs" />
     <Compile Include="AssemblyInfo.fs" />
