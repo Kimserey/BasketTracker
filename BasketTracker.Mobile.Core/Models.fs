@@ -8,3 +8,10 @@ module Models =
         Id: int
         Name: string
     }
+
+    type Basket = {
+        Id: int
+        StoreId: int
+        Date: DateTime
+        Total: decimal
+    }

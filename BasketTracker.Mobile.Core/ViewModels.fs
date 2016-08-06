@@ -86,13 +86,3 @@ type StoreCellViewModel(archive) =
     member self.ArchiveCommand
         with get() =
             new Command(fun () -> archive())
-
-type StoreViewModel(storeId: int,
-                    storeName: string, 
-                    goToEdit: INavigation -> StoreViewModel -> unit, 
-                    refreshStoreList: unit -> unit) = 
-
-    member self.Id = storeId
-    member self.Name = storeName
-    member self.GoToEdit = goToEdit
-    member self.RefreshStoreList = refreshStoreList
