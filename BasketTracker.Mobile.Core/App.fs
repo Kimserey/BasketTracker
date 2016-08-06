@@ -13,7 +13,7 @@ type BasketViewCell() as self=
     inherit ViewCell()
 
     let grid    = new Grid()
-    let image   = new Image(Source = FileImageSource.op_Implicit "basket_black")
+    let image   = new Image(Source = FileImageSource.op_Implicit "basket")
     let date    = new Label(YAlign = TextAlignment.Center)
     let amount  = new Label(YAlign = TextAlignment.Center)
 
@@ -127,7 +127,7 @@ type StoreViewCell() as self =
     
     let grid    = new Grid()
     let name    = new Label(YAlign = TextAlignment.Center)
-    let shop   = new Image(Source = FileImageSource.op_Implicit "shop_black")
+    let shop   = new Image(Source = FileImageSource.op_Implicit "shop")
     let edit    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
     let delete  = new MenuItem(Text = "Delete", Icon = FileImageSource.op_Implicit "bin")
 
