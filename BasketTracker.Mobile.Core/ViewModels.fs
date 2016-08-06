@@ -109,6 +109,6 @@ type StoreListViewModel(title, getList, archiveStore) =
                     name         = store.Name,
                     archiveStore = 
                         (fun storeId ->
-                            self.OnPropertyChanged "List"
+                            self.OnPropertyChanging "List"
                             archiveStore storeId
                             self.OnPropertyChanged "List")))

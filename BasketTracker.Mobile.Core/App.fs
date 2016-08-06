@@ -114,7 +114,7 @@ type AddStorePage() as self =
         base.ToolbarItems.Add(save)
         base.Content <- layout
 
-type StoreViewCell(gotToEdit) as self =
+type StoreViewCell<'TCellViewModel>(gotToEdit) as self =
     inherit ViewCell()
     
     let grid    = new Grid()
@@ -126,7 +126,7 @@ type StoreViewCell(gotToEdit) as self =
     do
         name.SetBinding(Label.TextProperty, "Name")
 
-//        edit.Clicked.Add(fun e -> gotToEdit self.Context)
+        edit.Clicked.Add(fun e -> gotToEdit (unbox<'TCellViewModel> self.BindingContext))
         delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
 
         self.ContextActions.Add(edit)
@@ -139,15 +139,15 @@ type StoreViewCell(gotToEdit) as self =
         self.View <- grid
 
 
-type StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
+type StoreListPage<'TCellViewModel>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
     inherit ContentPage()
 
-    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box <| new StoreViewCell(goToEdit self.Navigation)))
+    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box <| new StoreViewCell<'TCellViewModel>(goToEdit self.Navigation)))
     let add      = new ToolbarItem("Add new store", "shop_add", fun () -> goToAdd self.Navigation)
     
     do
         self.ToolbarItems.Add(add)
-        listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation <| unbox<'TStore> e.Item)
+        listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation (unbox<'TCellViewModel> e.Item))
 
         self.SetBinding(ContentPage.TitleProperty, "Title")
         listView.SetBinding(ListView.ItemsSourceProperty, "List")
@@ -182,14 +182,14 @@ type App() =
                     |> Async.AwaitTask
                     |> Async.StartImmediate),
             goToEdit =
-                (fun nav store ->
-                    updateStorePage.BindingContext <- new UpdateStoreViewModel("Update the store name", store.Name, Stores.update store.Id)
+                (fun nav ctx ->
+                    updateStorePage.BindingContext <- new UpdateStoreViewModel("Update the store name", ctx.Name, Stores.update ctx.Id)
                     nav.PushAsync(updateStorePage)
                     |> Async.AwaitTask
                     |> Async.StartImmediate),
             goToBaskets = 
-                (fun nav store ->
-                    basketListPage.BindingContext <- new BasketListViewModel(store.Name, (fun () -> Baskets.list store.Id))
+                (fun nav ctx ->
+                    basketListPage.BindingContext <- new BasketListViewModel(ctx.Name, (fun () -> Baskets.list ctx.Id))
                     nav.PushAsync(basketListPage)
                     |> Async.AwaitTask
                     |> Async.StartImmediate)
