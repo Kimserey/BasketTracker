@@ -12,19 +12,22 @@ open Models
 type BasketViewCell() as self=
     inherit ViewCell()
 
-    let layout  = new StackLayout(Orientation = StackOrientation.Horizontal)
+    let grid    = new Grid()
     let image   = new Image(Source = FileImageSource.op_Implicit "basket")
-    let date    = new Label()
-    let amount  = new Label()
+    let date    = new Label(YAlign = TextAlignment.Center)
+    let amount  = new Label(YAlign = TextAlignment.Center)
 
     do
-        date.SetBinding(Label.TextProperty, "Date", stringFormat = "dd MMM YYYY")
-        amount.SetBinding(Label.TextProperty, "Total", stringFormat = "C")
-        layout.Children.Add(image)
-        layout.Children.Add(date)
-        layout.Children.Add(amount)
+        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
+        amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
 
-        self.View <- layout
+        grid.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
+        grid.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
+        grid.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
+        grid.Children.Add(image, 0, 0)
+        grid.Children.Add(date, 1, 0)
+        grid.Children.Add(amount, 2, 0)
+        self.View <- grid
 
 type BasketListPage(goToItemList) as self =
     inherit ContentPage()
@@ -123,37 +126,27 @@ type StoreCell = {
 
 type StoreViewCell() as self =
     inherit ViewCell()
+    
+    let grid    = new Grid()
+    let name    = new Label(YAlign = TextAlignment.Center)
+    let shop   = new Image(Source = FileImageSource.op_Implicit "shop")
+    let edit    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
+    let delete  = new MenuItem(Text = "Delete", Icon = FileImageSource.op_Implicit "bin")
 
-    let name =
-        let label = new Label()
-        label.SetBinding(Label.TextProperty, "Name")
-        label
-
-    let edit =
-        new MenuItem(
-            Text = "Edit",  
-            Icon = FileImageSource.op_Implicit "pencil")
-
-    let delete =
-        new MenuItem(
-            Text = "Delete", 
-            Icon = FileImageSource.op_Implicit "bin")
-
-    let layout =
-        let layout = new StackLayout()
-        layout.Children.Add(name)
-        layout
     do
+        name.SetBinding(Label.TextProperty, "Name")
         edit.Clicked.Add(fun e -> self.Context.GoToEdit self.ParentView.Navigation self.Context)
-
         //crashes add command is on the view model not on the storecell
-//        delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
+        //delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
         delete.Clicked.Add(fun _ -> self.Context.RefreshStoreList())
-
         self.ContextActions.Add(edit)
         self.ContextActions.Add(delete)
 
-        self.View <- layout
+        grid.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
+        grid.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
+        grid.Children.Add(shop, 0, 0)
+        grid.Children.Add(name, 1, 0)
+        self.View <- grid
 
     member self.Context
         with get(): StoreCell =
