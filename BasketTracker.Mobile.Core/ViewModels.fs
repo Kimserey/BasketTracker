@@ -3,6 +3,7 @@
 open System
 open System.ComponentModel
 open Xamarin.Forms
+open Models
 
 type ViewModelBase() =
     let propertyChanging = new Event<PropertyChangingEventHandler, PropertyChangingEventArgs>()
@@ -32,14 +33,20 @@ type PageViewModel() =
             title <- value
             self.OnPropertyChanged "Title"
 
-type AddStoreViewModel(addStore) =
-    inherit PageViewModel()
+
+type BasketListViewModel(title, getList: unit -> Basket list) =
+    inherit PageViewModel(Title = title)
+
+    member self.List 
+        with get() =
+            getList()
+
+
+type AddStoreViewModel(title, addStore) =
+    inherit PageViewModel(Title = title)
 
     let mutable name = ""
 
-    do
-        base.Title <- "Add a new store"
-        
     member self.Name 
         with get() = name
         and  set value = 
@@ -51,13 +58,11 @@ type AddStoreViewModel(addStore) =
         with get() =
             new Command<string>(fun name -> addStore name)
 
-type UpdateStoreViewModel(currentName, updateStoreName) =
-    inherit PageViewModel()
+
+type UpdateStoreViewModel(title, currentName, updateStoreName) =
+    inherit PageViewModel(Title = title)
 
     let mutable name: string = currentName
-
-    do
-        base.Title <- "Update store"
     
     member self.Name 
         with get() = name

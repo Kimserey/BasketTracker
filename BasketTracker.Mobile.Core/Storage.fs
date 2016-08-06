@@ -100,28 +100,29 @@ module Storage =
 
     module Baskets =   
         let list (storeId: int) =
-//            let sql = """
-//                SELECT 
-//                    b.id id, 
-//                    b.date date, 
-//                    SUM(i.amount) total 
-//                FROM basket b
-//                LEFT JOIN item i ON b.id = i.basketid
-//                WHERE 
-//                    b.archived <> 1
-//                    AND i.archived <> 1 
-//                    AND b.storeid = ?
-//                ORDER BY date DESC
-//            """
-//
-//            use conn = connect()
-//            conn.DeferredQuery<SQLBasketQueryResult>(sql, [| box storeId |]) |> Seq.toList
-//            |> Seq.toList
-//            |> List.map (fun b ->
-//                { Id = b.Id
-//                  StoreId = storeId
-//                  Total = b.Total
-//                  Date = b.Date }:Basket)
-            
             [ {Id = 1; StoreId = 1; Total = 100.0m; Date = DateTime.Now}
               {Id = 1; StoreId = 1; Total = 100.0m; Date = DateTime.Now} ]
+
+        let list' (storeId: int) =
+            let sql = """
+                SELECT 
+                    b.id id, 
+                    b.date date, 
+                    SUM(i.amount) total 
+                FROM basket b
+                LEFT JOIN item i ON b.id = i.basketid
+                WHERE 
+                    b.archived <> 1
+                    AND i.archived <> 1 
+                    AND b.storeid = ?
+                ORDER BY date DESC
+            """
+
+            use conn = connect()
+            conn.DeferredQuery<SQLBasketQueryResult>(sql, [| box storeId |]) |> Seq.toList
+            |> Seq.toList
+            |> List.map (fun b ->
+                { Id = b.Id
+                  StoreId = storeId
+                  Total = b.Total
+                  Date = b.Date }:Basket)

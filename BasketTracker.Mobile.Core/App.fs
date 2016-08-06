@@ -18,13 +18,13 @@ type BasketViewCell() =
     let amount  = new Label()
 
     do
-        date.SetBinding(Label.TextProperty, "Date", stringFormat = "dd MMM YYYY")
-        amount.SetBinding(Label.TextProperty, "Amount", stringFormat = "C")
+//        date.SetBinding(Label.TextProperty, "Date")
+//        amount.SetBinding(Label.TextProperty, "Amount")
         layout.Children.Add(image)
         layout.Children.Add(date)
         layout.Children.Add(amount)
 
-type BasketListPage(getBasketList, goToItemList) as self =
+type BasketListPage(goToItemList) as self =
     inherit ContentPage()
     
     let listView = 
@@ -40,7 +40,7 @@ type BasketListPage(getBasketList, goToItemList) as self =
         layout
 
     do
-        listView.ItemsSource <- getBasketList()
+        listView.SetBinding(ListView.ItemsSourceProperty, "List")
         self.SetBinding(ContentPage.TitleProperty, "Title")
         self.Content <- layout
 
@@ -61,6 +61,11 @@ type UpdateStorePage() as self =
                 |> Async.Ignore
                 |> Async.StartImmediate)
 
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(entry)
+        layout
+
     do
         self.SetBinding(ContentPage.TitleProperty, "Title")
         entry.SetBinding(Entry.TextProperty, "Name")
@@ -69,12 +74,12 @@ type UpdateStorePage() as self =
         save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
 
         self.ToolbarItems.Add(save)
-        self.Content <- new StackLayout() |> StackLayout.AddChild entry
+        self.Content <- layout
 
 
 type AddStorePage() as self =
     inherit ContentPage()
-    
+
     let entry =
         new Entry(Placeholder = "Enter a store name here")
 
@@ -88,6 +93,11 @@ type AddStorePage() as self =
                 |> Async.Ignore
                 |> Async.StartImmediate)
 
+    let layout = 
+        let layout = new StackLayout()
+        layout.Children.Add(entry)
+        layout
+
     do
         self.SetBinding(ContentPage.TitleProperty, "Title")
         entry.SetBinding(Entry.TextProperty, "Name")
@@ -95,9 +105,8 @@ type AddStorePage() as self =
         save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
         save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
 
-
         base.ToolbarItems.Add(save)
-        base.Content <- new StackLayout() |> StackLayout.AddChild entry
+        base.Content <- layout
 
 
 type StoreCell = {
@@ -110,6 +119,11 @@ type StoreCell = {
 type StoreViewCell() as self =
     inherit ViewCell()
 
+    let name =
+        let label = new Label()
+        label.SetBinding(Label.TextProperty, "Name")
+        label
+
     let edit =
         new MenuItem(
             Text = "Edit",  
@@ -121,9 +135,9 @@ type StoreViewCell() as self =
             Icon = FileImageSource.op_Implicit "bin")
 
     let layout =
-        new StackLayout()
-        |> StackLayout.AddChild (new Label() |> Label.SetBinding' Label.TextProperty "Name")
-
+        let layout = new StackLayout()
+        layout.Children.Add(name)
+        layout
     do
         edit.Clicked.Add(fun e -> self.Context.GoToEdit self.ParentView.Navigation self.Context)
         
@@ -140,14 +154,8 @@ type StoreViewCell() as self =
             unbox<StoreCell> self.BindingContext
 
 
-and StoreListNavigator = {
-    GoToAddPage: INavigation -> unit
-    GoToEditPage: INavigation -> unit
-    GoToBasketList: INavigation -> unit
-}
-
 and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
-    inherit ContentPage(Title = "Stores")
+    inherit ContentPage()
 
     let listView = 
         new ListView(ItemTemplate = new DataTemplate(typeof<StoreViewCell>))
@@ -163,6 +171,8 @@ and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self
         self.Content <- listView
             
         listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation <| unbox<'TStore> e.Item)
+
+        self.SetBinding(ContentPage.TitleProperty, "Title")
             
     member self.Refresh() =
         listView.ItemsSource <- 
@@ -171,7 +181,7 @@ and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self
                 { Id = s.Id
                   Name = s.Name
                   GoToEdit = goToEdit
-                  RefreshStoreList = self.Refresh })
+                  RefreshStoreList = self.Refresh }: StoreCell)
 
     override self.OnAppearing() =
         self.Refresh()
@@ -183,11 +193,8 @@ type App() =
     let page = 
         let addPage             = new AddStorePage()
         let updateStorePage     = new UpdateStorePage()
-        
         let basketListPage = 
-            new BasketListPage(
-                getBasketList = Baskets.list,
-                goToItemList =
+            new BasketListPage(goToItemList =
                     (fun nav -> ())
             )
         
@@ -196,19 +203,19 @@ type App() =
                 Stores.list,
             goToAdd = 
                 (fun nav ->
-                    addPage.BindingContext <- new AddStoreViewModel(Stores.add)
+                    addPage.BindingContext <- new AddStoreViewModel("Add a new store", Stores.add)
                     nav.PushAsync(addPage)
                     |> Async.AwaitTask
                     |> Async.StartImmediate),
             goToEdit =
                 (fun nav store ->
-                    updateStorePage.BindingContext <- new UpdateStoreViewModel(store.Name, Stores.update store.Id)
+                    updateStorePage.BindingContext <- new UpdateStoreViewModel("Update the store name", store.Name, Stores.update store.Id)
                     nav.PushAsync(updateStorePage)
                     |> Async.AwaitTask
                     |> Async.StartImmediate),
             goToBaskets = 
                 (fun nav store ->
-                    basketListPage.BindingContext <- new PageViewModel(Title = store.Name)
+                    basketListPage.BindingContext <- new BasketListViewModel(store.Name, (fun () -> Baskets.list store.Id))
                     nav.PushAsync(basketListPage)
                     |> Async.AwaitTask
                     |> Async.StartImmediate)
