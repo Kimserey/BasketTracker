@@ -13,7 +13,7 @@ type BasketViewCell() as self=
     inherit ViewCell()
 
     let grid    = new Grid()
-    let image   = new Image(Source = FileImageSource.op_Implicit "basket")
+    let image   = new Image(Source = FileImageSource.op_Implicit "basket_black")
     let date    = new Label(YAlign = TextAlignment.Center)
     let amount  = new Label(YAlign = TextAlignment.Center)
 
@@ -29,14 +29,12 @@ type BasketViewCell() as self=
         grid.Children.Add(amount, 2, 0)
         self.View <- grid
 
-type BasketListPage(goToItemList) as self =
+type BasketListPage(goToAdd, goToBasket) as self =
     inherit ContentPage()
     
-    let listView = 
-        new ListView(ItemTemplate = new DataTemplate(typeof<BasketViewCell>))
-    
-    let label = 
-        new Label()
+    let listView = new ListView(ItemTemplate = new DataTemplate(typeof<BasketViewCell>))
+    let label    = new Label()
+    let add      = new ToolbarItem("Add new basket", "basket_add", fun () -> goToAdd self.Navigation)
 
     let layout = 
         let layout = new StackLayout()
@@ -46,9 +44,9 @@ type BasketListPage(goToItemList) as self =
 
     do
         listView.SetBinding(ListView.ItemsSourceProperty, "Baskets")
-        listView.ItemTapped.Add(fun e ->
-            goToItemList self.Navigation (unbox<Basket> e.Item))
-
+        listView.ItemTapped.Add(fun e -> goToBasket self.Navigation (unbox<Basket> e.Item))
+        self.ToolbarItems.Add(add)
+        
         self.SetBinding(ContentPage.TitleProperty, "Title")
         self.Content <- layout
 
@@ -129,7 +127,7 @@ type StoreViewCell() as self =
     
     let grid    = new Grid()
     let name    = new Label(YAlign = TextAlignment.Center)
-    let shop   = new Image(Source = FileImageSource.op_Implicit "shop")
+    let shop   = new Image(Source = FileImageSource.op_Implicit "shop_black")
     let edit    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
     let delete  = new MenuItem(Text = "Delete", Icon = FileImageSource.op_Implicit "bin")
 
@@ -153,22 +151,15 @@ type StoreViewCell() as self =
             unbox<StoreCell> self.BindingContext
 
 
-and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
+type StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
     inherit ContentPage()
 
-    let listView = 
-        new ListView(ItemTemplate = new DataTemplate(typeof<StoreViewCell>))
-    
-    let add =
-        new ToolbarItem(
-            "Add new store", 
-            "plus", 
-            fun () -> goToAdd self.Navigation)
+    let listView = new ListView(ItemTemplate = new DataTemplate(typeof<StoreViewCell>))
+    let add      = new ToolbarItem("Add new store", "shop_add", fun () -> goToAdd self.Navigation)
     
     do
         self.ToolbarItems.Add(add)
         self.Content <- listView
-            
         listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation <| unbox<'TStore> e.Item)
 
         self.SetBinding(ContentPage.TitleProperty, "Title")
@@ -187,13 +178,21 @@ and StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self
         
 type App() = 
     inherit Application()
+    
+    let addPage = 
+        new AddStorePage()
+    
+    let updateStorePage = 
+        new UpdateStorePage()
 
+    let basketListPage = 
+        new BasketListPage(
+            goToAdd =
+                (fun nav -> ()),
+            goToBasket =
+                (fun nav basket -> ()))
 
     let page = 
-        let addPage             = new AddStorePage()
-        let updateStorePage     = new UpdateStorePage()
-        let basketListPage      = new BasketListPage(fun nav basket -> ())
-        
         new StoreListPage<StoreCell>(
             getStoreList = 
                 Stores.list,
