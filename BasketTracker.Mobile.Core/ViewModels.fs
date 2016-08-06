@@ -1,6 +1,7 @@
 ﻿namespace BasketTracker.Mobile.Core
 
 open System
+open System.Linq
 open System.Collections.ObjectModel
 open System.ComponentModel
 open Xamarin.Forms
@@ -38,7 +39,7 @@ type PageViewModel() =
 type BasketListViewModel(title, getBaskets) =
     inherit PageViewModel(Title = title)
 
-    member self.Baskets
+    member self.List
         with get(): Basket list =
             getBaskets()
 
@@ -76,10 +77,13 @@ type UpdateStoreViewModel(title, currentName, updateStoreName) =
             new Command<string>(fun name -> updateStoreName name)
 
 
-type StoreCellViewModel(archive) =
+type StoreCellViewModel(storeId, name, archive) =
     inherit ViewModelBase()
 
-    let mutable name = ""
+    let mutable name = name
+    
+    member self.Id
+        with get() = storeId
 
     member self.Name
         with get() = name
@@ -90,4 +94,20 @@ type StoreCellViewModel(archive) =
 
     member self.ArchiveCommand
         with get() =
-            new Command(fun () -> archive())
+            new Command(fun () -> archive storeId)
+
+
+type StoreListViewModel(title, getList, archiveStore) =
+    inherit PageViewModel(Title = title)
+
+    member self.List
+        with get(): StoreCellViewModel list =
+            getList()
+            |> List.map(fun (store: Store) -> 
+                new StoreCellViewModel(
+                    storeId = store.Id,
+                    name    = store.Name,
+                    archive = 
+                        (fun storeId ->
+                            archiveStore storeId
+                            self.OnPropertyChanged "List")))

@@ -43,7 +43,7 @@ type BasketListPage(goToAdd, goToBasket) as self =
         layout
 
     do
-        listView.SetBinding(ListView.ItemsSourceProperty, "Baskets")
+        listView.SetBinding(ListView.ItemsSourceProperty, "List")
         listView.ItemTapped.Add(fun e -> goToBasket self.Navigation (unbox<Basket> e.Item))
         self.ToolbarItems.Add(add)
         
@@ -114,29 +114,21 @@ type AddStorePage() as self =
         base.ToolbarItems.Add(save)
         base.Content <- layout
 
-
-type StoreCell = {
-    Id: int
-    Name: string 
-    GoToEdit: INavigation -> StoreCell -> unit
-    RefreshStoreList: unit -> unit
-}
-
-type StoreViewCell() as self =
+type StoreViewCell(gotToEdit) as self =
     inherit ViewCell()
     
     let grid    = new Grid()
     let name    = new Label(YAlign = TextAlignment.Center)
-    let shop   = new Image(Source = FileImageSource.op_Implicit "shop")
+    let shop    = new Image(Source = FileImageSource.op_Implicit "shop")
     let edit    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
     let delete  = new MenuItem(Text = "Delete", Icon = FileImageSource.op_Implicit "bin")
 
     do
         name.SetBinding(Label.TextProperty, "Name")
-        edit.Clicked.Add(fun e -> self.Context.GoToEdit self.ParentView.Navigation self.Context)
-        //crashes add command is on the view model not on the storecell
-        //delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
-        delete.Clicked.Add(fun _ -> self.Context.RefreshStoreList())
+
+//        edit.Clicked.Add(fun e -> gotToEdit self.Context)
+        delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
+
         self.ContextActions.Add(edit)
         self.ContextActions.Add(delete)
 
@@ -146,36 +138,23 @@ type StoreViewCell() as self =
         grid.Children.Add(name, 1, 0)
         self.View <- grid
 
-    member self.Context
-        with get(): StoreCell =
-            unbox<StoreCell> self.BindingContext
-
 
 type StoreListPage<'TStore>(getStoreList, goToAdd, goToEdit, goToBaskets) as self =
     inherit ContentPage()
 
-    let listView = new ListView(ItemTemplate = new DataTemplate(typeof<StoreViewCell>))
+    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box <| new StoreViewCell(goToEdit self.Navigation)))
     let add      = new ToolbarItem("Add new store", "shop_add", fun () -> goToAdd self.Navigation)
     
     do
         self.ToolbarItems.Add(add)
-        self.Content <- listView
         listView.ItemTapped.Add(fun e -> goToBaskets self.Navigation <| unbox<'TStore> e.Item)
 
         self.SetBinding(ContentPage.TitleProperty, "Title")
-            
-    member self.Refresh() =
-        listView.ItemsSource <- 
-            getStoreList() 
-            |> List.map(fun (s: Store) -> 
-                { Id = s.Id
-                  Name = s.Name
-                  GoToEdit = goToEdit
-                  RefreshStoreList = self.Refresh }: StoreCell)
+        listView.SetBinding(ListView.ItemsSourceProperty, "List")
 
-    override self.OnAppearing() =
-        self.Refresh()
-        
+        self.Content <- listView
+
+            
 type App() = 
     inherit Application()
     
@@ -193,7 +172,7 @@ type App() =
                 (fun nav basket -> ()))
 
     let page = 
-        new StoreListPage<StoreCell>(
+        new StoreListPage<StoreCellViewModel>(
             getStoreList = 
                 Stores.list,
             goToAdd = 
@@ -217,5 +196,11 @@ type App() =
         )
 
     do 
-        page.BindingContext <- new PageViewModel(Title = "Stores")
+        page.BindingContext <- 
+            new StoreListViewModel(
+                title = "Stores", 
+                getList = Stores.list, 
+                archiveStore = Stores.archive
+            )
+
         base.MainPage <- new NavigationPage(page)
