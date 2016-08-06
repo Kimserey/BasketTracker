@@ -1,6 +1,7 @@
 ﻿namespace BasketTracker.Mobile.Core
 
 open System
+open System.Collections.ObjectModel
 open System.ComponentModel
 open Xamarin.Forms
 open Models
@@ -34,13 +35,12 @@ type PageViewModel() =
             self.OnPropertyChanged "Title"
 
 
-type BasketListViewModel(title, getList: unit -> Basket list) =
+type BasketListViewModel(title, getBaskets) =
     inherit PageViewModel(Title = title)
 
-    member self.List 
-        with get() =
-            getList()
-
+    member self.Baskets
+        with get(): Basket list =
+            getBaskets()
 
 type AddStoreViewModel(title, addStore) =
     inherit PageViewModel(Title = title)

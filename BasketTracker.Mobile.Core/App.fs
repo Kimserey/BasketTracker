@@ -9,7 +9,7 @@ open Storage
 open SQLite.Net
 open Models
 
-type BasketViewCell() =
+type BasketViewCell() as self=
     inherit ViewCell()
 
     let layout  = new StackLayout(Orientation = StackOrientation.Horizontal)
@@ -18,11 +18,13 @@ type BasketViewCell() =
     let amount  = new Label()
 
     do
-//        date.SetBinding(Label.TextProperty, "Date")
-//        amount.SetBinding(Label.TextProperty, "Amount")
+        date.SetBinding(Label.TextProperty, "Date", stringFormat = "dd MMM YYYY")
+        amount.SetBinding(Label.TextProperty, "Total", stringFormat = "C")
         layout.Children.Add(image)
         layout.Children.Add(date)
         layout.Children.Add(amount)
+
+        self.View <- layout
 
 type BasketListPage(goToItemList) as self =
     inherit ContentPage()
@@ -40,7 +42,10 @@ type BasketListPage(goToItemList) as self =
         layout
 
     do
-        listView.SetBinding(ListView.ItemsSourceProperty, "List")
+        listView.SetBinding(ListView.ItemsSourceProperty, "Baskets")
+        listView.ItemTapped.Add(fun e ->
+            goToItemList self.Navigation (unbox<Basket> e.Item))
+
         self.SetBinding(ContentPage.TitleProperty, "Title")
         self.Content <- layout
 
@@ -140,8 +145,9 @@ type StoreViewCell() as self =
         layout
     do
         edit.Clicked.Add(fun e -> self.Context.GoToEdit self.ParentView.Navigation self.Context)
-        
-        delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
+
+        //crashes add command is on the view model not on the storecell
+//        delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
         delete.Clicked.Add(fun _ -> self.Context.RefreshStoreList())
 
         self.ContextActions.Add(edit)
@@ -193,10 +199,7 @@ type App() =
     let page = 
         let addPage             = new AddStorePage()
         let updateStorePage     = new UpdateStorePage()
-        let basketListPage = 
-            new BasketListPage(goToItemList =
-                    (fun nav -> ())
-            )
+        let basketListPage      = new BasketListPage(fun nav basket -> ())
         
         new StoreListPage<StoreCell>(
             getStoreList = 
