@@ -77,7 +77,7 @@ type UpdateStoreViewModel(title, currentName, updateStoreName) =
             new Command<string>(fun name -> updateStoreName name)
 
 
-type StoreCellViewModel(storeId, name, archive) =
+type StoreCellViewModel(storeId, name, archiveStore) =
     inherit ViewModelBase()
 
     let mutable name = name
@@ -94,7 +94,7 @@ type StoreCellViewModel(storeId, name, archive) =
 
     member self.ArchiveCommand
         with get() =
-            new Command(fun () -> archive storeId)
+            new Command(fun () -> archiveStore storeId)
 
 
 type StoreListViewModel(title, getList, archiveStore) =
@@ -105,9 +105,10 @@ type StoreListViewModel(title, getList, archiveStore) =
             getList()
             |> List.map(fun (store: Store) -> 
                 new StoreCellViewModel(
-                    storeId = store.Id,
-                    name    = store.Name,
-                    archive = 
+                    storeId      = store.Id,
+                    name         = store.Name,
+                    archiveStore = 
                         (fun storeId ->
+                            self.OnPropertyChanged "List"
                             archiveStore storeId
                             self.OnPropertyChanged "List")))
