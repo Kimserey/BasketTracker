@@ -35,13 +35,5 @@ type PageViewModel() =
             title <- value
             self.OnPropertyChanged "Title"
 
-
-type BasketListViewModel(title, getBaskets) =
-    inherit PageViewModel(Title = title)
-
-    member self.List
-        with get(): Basket list =
-            getBaskets()
-
             
 
