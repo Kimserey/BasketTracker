@@ -81,4 +81,4 @@ module ViewModels =
             with get() =
                 new Command<string>(fun name -> 
                     let updatedStore = api.Update store.Id name
-                    parentViewModel.Name <- name)
+                    parentViewModel.Name <- updatedStore.Name)
