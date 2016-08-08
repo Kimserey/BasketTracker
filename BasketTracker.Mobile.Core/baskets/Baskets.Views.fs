@@ -13,7 +13,11 @@ module Views =
     
         let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
         let label    = new Label()
-        let add      = new ToolbarItem("Add new basket", "basket_add", fun () -> navigator.Basket.NavigateToCreate navigator self.BindingContext)
+        let add = 
+            new ToolbarItem(
+                "Add new basket", 
+                "basket_add", 
+                fun () -> navigator.Basket.NavigateToAdd navigator self.BindingContext)
 
         let layout = 
             let layout = new StackLayout()

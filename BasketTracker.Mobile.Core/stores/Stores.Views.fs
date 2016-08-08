@@ -16,7 +16,7 @@ module Views =
             new ToolbarItem(
                 "Add new store", 
                 "shop_add", 
-                (fun () -> navigator.Store.NavigateToCreate navigator self.BindingContext))
+                fun () -> navigator.Store.NavigateToAdd navigator self.BindingContext)
     
         do
             // Bindings            
@@ -34,8 +34,8 @@ module Views =
     
         let name    = new Label(YAlign = TextAlignment.Center)
         let shop    = new Image(Source = FileImageSource.op_Implicit "shop")
-        let edit    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
-        let delete  = new MenuItem(Text = "Delete", Icon = FileImageSource.op_Implicit "bin")
+        let update    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
+        let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
         let layout = 
             let layout = new Grid()
@@ -47,9 +47,9 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Store.NavigateToStore navigator self.BindingContext)
-            edit.Clicked.Add(fun _ -> navigator.Store.NavigateToEdit navigator self.BindingContext)
-            delete.Clicked.Add(fun _ -> 
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
+            update.Clicked.Add(fun _ -> navigator.Store.NavigateToUpdate navigator self.BindingContext)
+            remove.Clicked.Add(fun _ -> 
                 self.ParentView.Navigation.PopAsync() 
                 |> Async.AwaitTask 
                 |> Async.Ignore 
@@ -57,12 +57,12 @@ module Views =
             
             // Bindings
             name.SetBinding(Label.TextProperty, "Name")
-            delete.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
-            delete.SetBinding(MenuItem.CommandParameterProperty, ".")
+            remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
+            remove.SetBinding(MenuItem.CommandParameterProperty, ".")
 
             // Context actions
-            self.ContextActions.Add(edit)
-            self.ContextActions.Add(delete)
+            self.ContextActions.Add(update)
+            self.ContextActions.Add(remove)
 
             self.View <- layout
 

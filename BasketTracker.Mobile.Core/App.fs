@@ -26,17 +26,26 @@ type App() =
 
             member self.Store = 
                 { new IStoreNavigator with
-                    member store.NavigateToStoreList nav ctx = ()
-                    member store.NavigateToStore     nav ctx = ()
-                    member store.NavigateToCreate    nav ctx = ()
-                    member store.NavigateToEdit      nav ctx = () }
+                    member store.NavigateToAdd nav ctx = 
+                        let vm = new AddStoreViewModel("Add new store", Stores.add)
+                        let page = new AddStorePage(vm)
+                        nav.Navigation.PushAsync(page)
+                        |> Async.AwaitTask 
+                        |> Async.StartImmediate  
+
+                    member store.NavigateToUpdate nav ctx = 
+                        let ctx = ctx :?> StoreCellViewModel
+                        let vm = new UpdateStoreViewModel("Update an existing store", ctx.Name, Stores.update ctx.Id)
+                        let page = new UpdateStorePage(vm)
+                        nav.Navigation.PushAsync(page)
+                        |> Async.AwaitTask 
+                        |> Async.StartImmediate   }
 
             member self.Basket = 
                 { new IBasketNavigator with
                     member basket.NavigateToBasketList nav ctx = ()
-                    member basket.NavigateToBasket     nav ctx = ()
-                    member basket.NavigateToCreate     nav ctx = ()
-                    member basket.NavigateToEdit       nav ctx = () } }
+                    member basket.NavigateToAdd     nav ctx = ()
+                    member basket.NavigateToUpdate       nav ctx = () } }
 
     do 
         nav.PushAsync(new StoreListPage(new StoreListViewModel(title = "Stores", listStores = Stores.list, archiveStore = Stores.archive), navigator))
