@@ -43,6 +43,7 @@
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Platform.fs" />
+    <Compile Include="Navigator.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="Storage.fs" />
     <Compile Include="ViewModels.fs" />

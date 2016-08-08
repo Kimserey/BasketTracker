@@ -18,21 +18,23 @@ module ViewModels =
                 listStores() 
                 |> List.map(fun (s: Store) -> 
                     new StoreCellViewModel(
-                        self.Remove, 
                         s.Id, 
-                        s.Name)))
-
+                        s.Name,
+                        self.RemoveCommand)))
+        
         member self.List
             with get() = list
-
-        member self.Remove
+                
+        // CODE CRASH HERE
+        // Breaks recursive loop
+        member self.RemoveCommand
             with get() =
                 new Command<StoreCellViewModel>(fun (store: StoreCellViewModel) -> 
                     archiveStore store.Id
                     self.List.Remove store
                     |> ignore)
 
-    and StoreCellViewModel(remove: Command<StoreCellViewModel>, storeId, name) =
+    and StoreCellViewModel(storeId, name, removeCmd: Command<StoreCellViewModel>) =
         inherit ViewModelBase()
 
         let mutable name = name
@@ -47,8 +49,8 @@ module ViewModels =
                 name <- value
                 self.OnPropertyChanged "Name"
 
-        member self.ArchiveCommand
-            with get() = remove
+        member self.RemoveCommand
+            with get() = removeCmd
 
     
     type AddStoreViewModel(title, addStore) =

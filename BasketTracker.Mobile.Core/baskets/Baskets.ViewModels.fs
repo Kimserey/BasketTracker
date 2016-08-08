@@ -37,7 +37,7 @@ module ViewModels =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList self.ParentView.Navigation self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
 
             // Bindings
             date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")

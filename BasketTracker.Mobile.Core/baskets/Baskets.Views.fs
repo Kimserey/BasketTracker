@@ -13,7 +13,7 @@ module Views =
     
         let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
         let label    = new Label()
-        let add      = new ToolbarItem("Add new basket", "basket_add", fun () -> navigator.Basket.NavigateToCreate self.Navigation self.BindingContext)
+        let add      = new ToolbarItem("Add new basket", "basket_add", fun () -> navigator.Basket.NavigateToCreate navigator self.BindingContext)
 
         let layout = 
             let layout = new StackLayout()
@@ -51,7 +51,7 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList self.ParentView.Navigation self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
 
             // Bindings
             date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")

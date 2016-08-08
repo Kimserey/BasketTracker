@@ -6,7 +6,7 @@ open System
 
 module Views =
 
-    type StoreListPage<'TCellViewModel>(vm, navigator: INavigator) as self =
+    type StoreListPage(vm, navigator: INavigator) as self =
         inherit ContentPage()
 
         let listView = 
@@ -16,7 +16,7 @@ module Views =
             new ToolbarItem(
                 "Add new store", 
                 "shop_add", 
-                (fun () -> navigator.Store.NavigateToCreate self.Navigation self.BindingContext))
+                (fun () -> navigator.Store.NavigateToCreate navigator self.BindingContext))
     
         do
             // Bindings            
@@ -47,8 +47,8 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Store.NavigateToStore self.ParentView.Navigation self.BindingContext)
-            edit.Clicked.Add(fun _ -> navigator.Store.NavigateToEdit self.ParentView.Navigation self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Store.NavigateToStore navigator self.BindingContext)
+            edit.Clicked.Add(fun _ -> navigator.Store.NavigateToEdit navigator self.BindingContext)
             delete.Clicked.Add(fun _ -> 
                 self.ParentView.Navigation.PopAsync() 
                 |> Async.AwaitTask 
@@ -57,7 +57,7 @@ module Views =
             
             // Bindings
             name.SetBinding(Label.TextProperty, "Name")
-            delete.SetBinding(MenuItem.CommandProperty, "ArchiveCommand")
+            delete.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
             delete.SetBinding(MenuItem.CommandParameterProperty, ".")
 
             // Context actions

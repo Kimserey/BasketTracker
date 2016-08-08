@@ -8,54 +8,40 @@ open Xamarin.Forms
 open Storage
 open SQLite.Net
 open Models
+open BasketTracker.Mobile.Core.Stores.ViewModels
 open BasketTracker.Mobile.Core.Stores.Views
+open BasketTracker.Mobile.Core.Baskets.ViewModels
+open BasketTracker.Mobile.Core.Baskets.Views
 
 type App() = 
     inherit Application()
     
-    let addPage = 
-        new AddStorePage()
-    
-    let updateStorePage = 
-        new UpdateStorePage()
+    let nav =
+        new NavigationPage()
 
-    let basketListPage = 
-        new BasketListPage(
-            goToAdd =
-                (fun nav -> ()),
-            goToBasket =
-                (fun nav basket -> ()))
+    let navigator = 
+        { new INavigator with
+            member self.Navigation =
+                nav.Navigation
 
-    let page = 
-        new StoreListPage<StoreCellViewModel>(
-            getStoreList = 
-                Stores.list,
-            goToAdd = 
-                (fun nav ->
-                    addPage.BindingContext <- new AddStoreViewModel("Add a new store", Stores.add)
-                    nav.PushAsync(addPage)
-                    |> Async.AwaitTask
-                    |> Async.StartImmediate),
-            goToEdit =
-                (fun nav ctx ->
-                    updateStorePage.BindingContext <- new UpdateStoreViewModel("Update the store name", ctx.Name, Stores.update ctx.Id)
-                    nav.PushAsync(updateStorePage)
-                    |> Async.AwaitTask
-                    |> Async.StartImmediate),
-            goToBaskets = 
-                (fun nav ctx ->
-                    basketListPage.BindingContext <- new BasketListViewModel(ctx.Name, (fun () -> Baskets.list ctx.Id))
-                    nav.PushAsync(basketListPage)
-                    |> Async.AwaitTask
-                    |> Async.StartImmediate)
-        )
+            member self.Store = 
+                { new IStoreNavigator with
+                    member store.NavigateToStoreList nav ctx = ()
+                    member store.NavigateToStore     nav ctx = ()
+                    member store.NavigateToCreate    nav ctx = ()
+                    member store.NavigateToEdit      nav ctx = () }
+
+            member self.Basket = 
+                { new IBasketNavigator with
+                    member basket.NavigateToBasketList nav ctx = ()
+                    member basket.NavigateToBasket     nav ctx = ()
+                    member basket.NavigateToCreate     nav ctx = ()
+                    member basket.NavigateToEdit       nav ctx = () } }
 
     do 
-        page.BindingContext <- 
-            new StoreListViewModel(
-                title = "Stores", 
-                getList = Stores.list, 
-                archiveStore = Stores.archive
-            )
+        nav.PushAsync(new StoreListPage(new StoreListViewModel(title = "Stores", listStores = Stores.list, archiveStore = Stores.archive), navigator))
+        |> Async.AwaitTask
+        |> Async.StartImmediate
 
-        base.MainPage <- new NavigationPage(page)
+        base.MainPage <- nav
+            
