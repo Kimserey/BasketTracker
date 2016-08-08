@@ -5,9 +5,9 @@ open System.Collections
 open System.Collections.Generic
 open System.ComponentModel
 open Xamarin.Forms
-open Storage
 open SQLite.Net
-open Models
+open BasketTracker.Mobile.Core.Models
+open BasketTracker.Mobile.Core.Storage
 open BasketTracker.Mobile.Core.Stores.ViewModels
 open BasketTracker.Mobile.Core.Stores.Views
 open BasketTracker.Mobile.Core.Baskets.ViewModels

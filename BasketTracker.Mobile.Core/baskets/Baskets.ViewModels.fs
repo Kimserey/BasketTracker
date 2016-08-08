@@ -2,6 +2,7 @@ namespace BasketTracker.Mobile.Core.Baskets
 
 open BasketTracker.Mobile.Core
 open BasketTracker.Mobile.Core.Models
+open BasketTracker.Mobile.Core.Storage.Baskets
 open Xamarin.Forms
 open System
 open System.Collections

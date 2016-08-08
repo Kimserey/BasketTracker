@@ -2,7 +2,6 @@ namespace BasketTracker.Mobile.Core.Stores
 
 open BasketTracker.Mobile.Core
 open BasketTracker.Mobile.Core.Models
-open BasketTracker.Mobile.Core.Storage
 open BasketTracker.Mobile.Core.Storage.Stores
 open Xamarin.Forms
 open System
@@ -81,4 +80,4 @@ module ViewModels =
             with get() =
                 new Command<string>(fun name -> 
                     let updatedStore = api.Update store.Id name
-                    parentViewModel.Name <- updatedStore.Name)
+                    parentViewModel.Name <- name)

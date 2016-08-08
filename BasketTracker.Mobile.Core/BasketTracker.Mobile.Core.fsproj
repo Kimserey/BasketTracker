@@ -42,13 +42,15 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Platform.fs" />
-    <Compile Include="Models.fs" />
+    <Compile Include="Domain.Models.fs" />
+    <Compile Include="Infrastructure.Platform.fs" />
     <Compile Include="Infrastructure.Navigator.fs" />
     <Compile Include="Infrastructure.Storage.fs" />
-    <Compile Include="ViewModels.fs" />
+    <Compile Include="Infrastructure.ViewModels.fs" />
+    <Compile Include="stores\Stores.Storage.fs" />
     <Compile Include="stores\Stores.ViewModels.fs" />
     <Compile Include="stores\Stores.Views.fs" />
+    <Compile Include="baskets\Baskets.Storage.fs" />
     <Compile Include="baskets\Baskets.ViewModels.fs" />
     <Compile Include="baskets\Baskets.Views.fs" />
     <Compile Include="App.fs" />
