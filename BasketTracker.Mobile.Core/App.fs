@@ -20,35 +20,45 @@ type App() =
         new NavigationPage()
 
     let navigator = 
-        { new INavigator with
-            member self.Navigation =
-                nav.Navigation
+        { Navigation = nav.Navigation
+          Store =
+            { NavigateToAdd = 
+                fun nav (Context ctx) ->
+                    let vm = new AddStoreViewModel(ctx :?> StoreListViewModel, Stores.api, "Add new store")
+                    let page = new AddStorePage(vm)
+                    nav.Navigation.PushAsync(page)
+                    |> Async.AwaitTask 
+                    |> Async.StartImmediate  
+              
+              NavigateToUpdate =
+                fun nav (Context ctx) ->
+                    let parent = ctx :?> StoreCellViewModel
+                    let vm = new UpdateStoreViewModel(parent, Stores.api, "Update an existing store", parent.Store)
+                    let page = new UpdateStorePage(vm)
+                    nav.Navigation.PushAsync(page)
+                    |> Async.AwaitTask 
+                    |> Async.StartImmediate }
 
-            member self.Store = 
-                { new IStoreNavigator with
-                    member store.NavigateToAdd nav ctx = 
-                        let vm = new AddStoreViewModel("Add new store", Stores.add)
-                        let page = new AddStorePage(vm)
-                        nav.Navigation.PushAsync(page)
-                        |> Async.AwaitTask 
-                        |> Async.StartImmediate  
+          Basket = 
+            { NavigateToBasketList =
+                fun nav (Context ctx) ->
+                    let parent = ctx :?> StoreCellViewModel
+                    let vm = new BasketListViewModel()
+                    let page = new BasketListPage(vm, nav)
+                    nav.Navigation.PushAsync(page)
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate
+              
+              NavigateToAdd = fun nav (Context ctx) -> ()
+              NavigateToUpdate = fun nav (Context ctx) -> () } }
 
-                    member store.NavigateToUpdate nav ctx = 
-                        let ctx = ctx :?> StoreCellViewModel
-                        let vm = new UpdateStoreViewModel("Update an existing store", ctx.Name, Stores.update ctx.Id)
-                        let page = new UpdateStorePage(vm)
-                        nav.Navigation.PushAsync(page)
-                        |> Async.AwaitTask 
-                        |> Async.StartImmediate   }
-
-            member self.Basket = 
-                { new IBasketNavigator with
-                    member basket.NavigateToBasketList nav ctx = ()
-                    member basket.NavigateToAdd     nav ctx = ()
-                    member basket.NavigateToUpdate       nav ctx = () } }
+    let vm =
+        new StoreListViewModel(
+            title = "Stores", 
+            api = Stores.api)
 
     do 
-        nav.PushAsync(new StoreListPage(new StoreListViewModel(title = "Stores", listStores = Stores.list, archiveStore = Stores.archive), navigator))
+        nav.PushAsync(new StoreListPage(vm, navigator))
         |> Async.AwaitTask
         |> Async.StartImmediate
 

@@ -8,7 +8,7 @@ open System.ComponentModel
 
 module Views =
 
-    type BasketListPage(vm, navigator: INavigator) as self =
+    type BasketListPage(vm, navigator: Navigator) as self =
         inherit ContentPage()
     
         let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
@@ -17,7 +17,7 @@ module Views =
             new ToolbarItem(
                 "Add new basket", 
                 "basket_add", 
-                fun () -> navigator.Basket.NavigateToAdd navigator self.BindingContext)
+                fun () -> navigator.Basket.NavigateToAdd navigator <| Context self.BindingContext)
 
         let layout = 
             let layout = new StackLayout()
@@ -36,7 +36,7 @@ module Views =
             self.BindingContext <- vm
             self.Content <- layout
     
-    and BasketViewCell(navigator: INavigator) as self=
+    and BasketViewCell(navigator: Navigator) as self=
         inherit ViewCell()
 
         let image   = new Image(Source = FileImageSource.op_Implicit "basket")
@@ -55,7 +55,7 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator <| Context self.BindingContext)
 
             // Bindings
             date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")

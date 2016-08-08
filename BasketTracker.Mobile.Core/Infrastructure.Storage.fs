@@ -56,16 +56,24 @@ module Storage =
         conn
             
     module Stores = 
+        
+        type StoresApi = {
+            List: unit -> Store list
+            Add: string -> Store
+            Update: int -> string -> Store
+            Remove: int-> unit
+        }
+
         let add name = 
             use conn = connect()
-            conn.Insert 
-                { 
-                    Id = 0 
-                    Name = name
-                    ImagePath = ""
-                    Archived = false
-                }
-            |> ignore
+            let newStore = 
+                { Id = 0 
+                  Name = name
+                  ImagePath = ""
+                  Archived = false }
+            conn.Insert newStore |> ignore
+            { Id = newStore.Id
+              Name = newStore.Name }: Store
 
         let get (storeId: int) = 
             use conn = connect()
@@ -73,17 +81,15 @@ module Storage =
             
         let update storeId name = 
             use conn = connect()
-            conn.RunInTransaction (fun () ->
-                let store = get storeId
-                conn.Update { store with Name = name } |> ignore
-            )
+            let store = get storeId
+            conn.Update { store with Name = name } |> ignore
+            { Id = store.Id
+              Name = store.Name }: Store
 
-        let archive storeId =
+        let remove storeId =
             use conn = connect()
-            conn.RunInTransaction (fun () ->
-                let store = get storeId
-                conn.Update { store with Archived = true } |> ignore
-            )
+            let store = get storeId
+            conn.Update { store with Archived = true } |> ignore
         
         let list () = 
             let sql = """
@@ -96,6 +102,12 @@ module Storage =
             |> List.map(fun s -> 
                 { Id = s.Id
                   Name = s.Name }: Store)
+
+        let api =
+            { List = list
+              Add = add
+              Update = update
+              Remove = remove }
 
 
     module Baskets =   

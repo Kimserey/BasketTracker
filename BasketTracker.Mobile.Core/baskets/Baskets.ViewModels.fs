@@ -18,7 +18,7 @@ module ViewModels =
         member self.List
             with get() = list
 
-    and BasketViewCell(navigator: INavigator) as self=
+    and BasketViewCell(navigator: Navigator) as self=
         inherit ViewCell()
 
         let image   = new Image(Source = FileImageSource.op_Implicit "basket")
@@ -37,7 +37,7 @@ module ViewModels =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator <| Context self.BindingContext)
 
             // Bindings
             date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")

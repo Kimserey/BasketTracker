@@ -6,7 +6,7 @@ open System
 
 module Views =
 
-    type StoreListPage(vm, navigator: INavigator) as self =
+    type StoreListPage(vm, navigator: Navigator) as self =
         inherit ContentPage()
 
         let listView = 
@@ -16,7 +16,7 @@ module Views =
             new ToolbarItem(
                 "Add new store", 
                 "shop_add", 
-                fun () -> navigator.Store.NavigateToAdd navigator self.BindingContext)
+                fun () -> navigator.Store.NavigateToAdd navigator <| Context self.BindingContext)
     
         do
             // Bindings            
@@ -29,7 +29,7 @@ module Views =
             base.BindingContext <- vm
             self.Content <- listView
             
-    and StoreViewCell(navigator: INavigator) as self =
+    and StoreViewCell(navigator: Navigator) as self =
         inherit ViewCell()
     
         let name    = new Label(YAlign = TextAlignment.Center)
@@ -47,18 +47,12 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator self.BindingContext)
-            update.Clicked.Add(fun _ -> navigator.Store.NavigateToUpdate navigator self.BindingContext)
-            remove.Clicked.Add(fun _ -> 
-                self.ParentView.Navigation.PopAsync() 
-                |> Async.AwaitTask 
-                |> Async.Ignore 
-                |> Async.StartImmediate)
+            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator <| Context self.BindingContext)
+            update.Clicked.Add(fun _ -> navigator.Store.NavigateToUpdate navigator<| Context  self.BindingContext)
             
             // Bindings
-            name.SetBinding(Label.TextProperty, "Name")
+            name.SetBinding(Label.TextProperty, ".Name")
             remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
-            remove.SetBinding(MenuItem.CommandParameterProperty, ".")
 
             // Context actions
             self.ContextActions.Add(update)

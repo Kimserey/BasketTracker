@@ -43,9 +43,9 @@
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Platform.fs" />
-    <Compile Include="Navigator.fs" />
     <Compile Include="Models.fs" />
-    <Compile Include="Storage.fs" />
+    <Compile Include="Infrastructure.Navigator.fs" />
+    <Compile Include="Infrastructure.Storage.fs" />
     <Compile Include="ViewModels.fs" />
     <Compile Include="stores\Stores.ViewModels.fs" />
     <Compile Include="stores\Stores.Views.fs" />

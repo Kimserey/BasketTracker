@@ -2,6 +2,8 @@ namespace BasketTracker.Mobile.Core.Stores
 
 open BasketTracker.Mobile.Core
 open BasketTracker.Mobile.Core.Models
+open BasketTracker.Mobile.Core.Storage
+open BasketTracker.Mobile.Core.Storage.Stores
 open Xamarin.Forms
 open System
 open System.Collections
@@ -10,48 +12,41 @@ open System.Collections.ObjectModel
 
 module ViewModels =
 
-    type StoreListViewModel(title, listStores, archiveStore) as self =
+    type StoreListViewModel(title, api: StoresApi) as self =
         inherit PageViewModel(Title = title)
 
         let list =
             new ObservableCollection<StoreCellViewModel>(
-                listStores() 
-                |> List.map(fun (s: Store) -> 
-                    new StoreCellViewModel(
-                        self,
-                        s.Id, 
-                        s.Name)))
+                api.List() |> List.map(fun (s: Store) -> new StoreCellViewModel(self, api, s))
+            )
         
         member self.List
             with get() = list
 
-        member self.RemoveCommand
-            with get() =
-                new Command<StoreCellViewModel>(fun store -> 
-                    archiveStore store.Id
-                    self.List.Remove store 
-                    |> ignore)
-
-    and StoreCellViewModel(parentViewModel: StoreListViewModel, storeId, name) =
+    and StoreCellViewModel(parentViewModel, api, store) =
         inherit ViewModelBase()
 
-        let mutable name = name
-    
-        member self.Id
-            with get() = storeId
+        let mutable name = store.Name
+
+        member self.Store
+            with get() = store
 
         member self.Name
             with get() = name
-            and  set value = 
-                self.OnPropertyChanging "Name"
+            and set value =
+                base.OnPropertyChanging "Name"
                 name <- value
-                self.OnPropertyChanged "Name"
+                base.OnPropertyChanged "Name"
 
         member self.RemoveCommand
-            with get() = parentViewModel.RemoveCommand
+            with get() =
+                new Command(fun () -> 
+                    api.Remove store.Id
+                    parentViewModel.List.Remove self
+                    |> ignore)
 
-    
-    type AddStoreViewModel(title, addStore) =
+
+    type AddStoreViewModel(parentViewModel: StoreListViewModel, api, title) =
         inherit PageViewModel(Title = title)
 
         let mutable name = ""
@@ -64,14 +59,16 @@ module ViewModels =
                 self.OnPropertyChanged "Name"
 
         member self.AddCommand
-            with get() =
-                new Command<string>(fun name -> 
-                    addStore name)
+            with get() = 
+                new Command<string>(fun name ->
+                    let newStore = api.Add name
+                    parentViewModel.List.Add (new StoreCellViewModel(parentViewModel, api, newStore)))
+                    
 
-    type UpdateStoreViewModel(title, currentName, updateStoreName) =
+    type UpdateStoreViewModel(parentViewModel: StoreCellViewModel, api, title, store: Store) =
         inherit PageViewModel(Title = title)
 
-        let mutable name: string = currentName
+        let mutable name: string = store.Name
     
         member self.Name 
             with get() = name
@@ -82,4 +79,6 @@ module ViewModels =
 
         member self.UpdateCommand
             with get() =
-                new Command<string>(fun name -> updateStoreName name)
+                new Command<string>(fun name -> 
+                    let updatedStore = api.Update store.Id name
+                    parentViewModel.Name <- name)
