@@ -11,13 +11,12 @@ open System.Collections.ObjectModel
 
 module ViewModels =
 
-    type StoreListViewModel(title, api: StoresApi) as self =
-        inherit PageViewModel(Title = title)
+    type StoreListViewModel(api: StoresApi) as self =
+        inherit PageViewModel(Title = "Stores")
 
         let list =
-            new ObservableCollection<StoreCellViewModel>(
-                api.List() |> List.map(fun (s: Store) -> new StoreCellViewModel(self, api, s))
-            )
+            let list = api.List() |> List.map(fun (s: Store) -> new StoreCellViewModel(self, api, s))
+            new ObservableCollection<StoreCellViewModel>(list)
         
         member self.List
             with get() = list

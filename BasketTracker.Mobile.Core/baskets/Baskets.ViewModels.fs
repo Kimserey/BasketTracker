@@ -11,37 +11,64 @@ open System.ComponentModel
 
 module ViewModels =
 
-    type BasketListViewModel() =
-        
+    type BasketListViewModel(api: BasketsApi, store: Store) as self =
+        inherit PageViewModel(Title = store.Name)
+
         let list =
-            new ObservableCollection<Basket>([])
+            new ObservableCollection<BasketCellViewModel>(
+                api.List store.Id
+                |> List.map(fun b -> new BasketCellViewModel(self, api, b))
+            )
 
         member self.List
             with get() = list
 
-    and BasketViewCell(navigator: Navigator) as self=
-        inherit ViewCell()
+        member self.Store
+            with get() = store
 
-        let image   = new Image(Source = FileImageSource.op_Implicit "basket")
-        let date    = new Label(YAlign = TextAlignment.Center)
-        let amount  = new Label(YAlign = TextAlignment.Center)
+    and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Basket) as self =
+        inherit ViewModelBase()
 
-        let layout = 
-            let layout = new Grid()
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-            layout.Children.Add(image, 0, 0)
-            layout.Children.Add(date, 1, 0)
-            layout.Children.Add(amount, 2, 0)
-            layout
+        let mutable image = "basket"
+        let mutable date = basket.Date
+        let mutable total = basket.Total
+        
+        member self.Date
+            with get() = date
+            and set value =
+                base.OnPropertyChanging "Date"
+                date <- value
+                base.OnPropertyChanged"Date"
+        
+        member self.Image
+            with get() = image
+            and set value =
+                base.OnPropertyChanging "Image"
+                image <- value
+                base.OnPropertyChanged "Image"
 
-        do
-            // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator <| Context self.BindingContext)
+        member self.Total
+            with get() = total
+            and set value =
+                base.OnPropertyChanging "Total"
+                total <- value
+                base.OnPropertyChanged "Total"
+        
+    type AddBasketViewModel(parent: BasketListViewModel, api: BasketsApi) =
+        inherit PageViewModel(Title = "Add a new basket to " + parent.Store.Name)
 
-            // Bindings
-            date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
-            amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
+        let mutable date = DateTime.Now
 
-            self.View <- layout
+        member self.Date
+            with get() = date
+            and set value =
+                base.OnPropertyChanging "Date"
+                date <- value
+                base.OnPropertyChanged "Date"
+        
+        member self.Add
+            with get() =
+                new Command<DateTime>(fun date -> 
+                   let newBasket = api.Add parent.Store.Id date
+                   parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
+

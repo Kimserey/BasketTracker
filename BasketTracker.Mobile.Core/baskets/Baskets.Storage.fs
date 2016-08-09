@@ -27,12 +27,13 @@ module Baskets =
                 b.id id, 
                 b.date date, 
                 SUM(i.amount) total 
-            FROM basket b
-            LEFT JOIN item i ON b.id = i.basketid
-            WHERE 
+            FROM baskets b
+            JOIN items i ON b.id = i.basketid
+            GROUP BY b.id, b.date, b.storeid
+            HAVING
                 b.archived <> 1
                 AND i.archived <> 1 
-                AND b.storeid = ?
+                AND b.storeid = ? 
             ORDER BY date DESC
         """
 

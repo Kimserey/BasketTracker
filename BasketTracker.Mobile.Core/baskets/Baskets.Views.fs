@@ -39,9 +39,9 @@ module Views =
     and BasketViewCell(navigator: Navigator) as self=
         inherit ViewCell()
 
-        let image   = new Image(Source = FileImageSource.op_Implicit "basket")
-        let date    = new Label(YAlign = TextAlignment.Center)
-        let amount  = new Label(YAlign = TextAlignment.Center)
+        let image  = new Image()
+        let date   = new Label(YAlign = TextAlignment.Center)
+        let amount = new Label(YAlign = TextAlignment.Center)
 
         let layout = 
             let layout = new Grid()
@@ -55,10 +55,18 @@ module Views =
 
         do
             // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Basket.NavigateToBasketList navigator <| Context self.BindingContext)
+            self.Tapped.Add(fun _ -> navigator.Item.NavigateToItemList navigator <| Context self.BindingContext)
 
             // Bindings
+            image.SetBinding(Image.SourceProperty, "Image")
             date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
             amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
 
             self.View <- layout
+
+    type AddBasketPage(vm, navigator: Navigator) as self =
+        inherit ContentPage()
+
+        do
+            self.BindingContext <- vm
+            self.SetBinding(ContentPage.TitleProperty, "Title")

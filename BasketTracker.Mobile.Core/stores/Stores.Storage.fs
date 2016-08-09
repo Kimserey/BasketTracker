@@ -23,7 +23,7 @@ module Stores =
         
     let list () = 
         let sql = """
-            SELECT * FROM store 
+            SELECT * FROM stores
             WHERE archived <> 1 
             ORDER BY name ASC
         """

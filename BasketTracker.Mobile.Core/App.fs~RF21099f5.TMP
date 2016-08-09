@@ -60,7 +60,7 @@ type App() =
 
               NavigateToUpdate = fun nav (Context ctx) -> () }
          
-          Item =
+         Item =
             { NavigateToItemList =
                 fun nav (Context ctx) -> () } }
 

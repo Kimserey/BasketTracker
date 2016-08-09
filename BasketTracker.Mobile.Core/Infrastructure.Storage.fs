@@ -11,7 +11,7 @@ open BasketTracker.Mobile.Core
 [<AutoOpen>]
 module Root =
 
-    [<CLIMutable; Table "store">]
+    [<CLIMutable; Table "stores">]
     type SQLStore = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
         [<Column "name">]                          Name: string
@@ -19,7 +19,7 @@ module Root =
         [<Column "archived">]                      Archived: bool
     } 
     
-    [<CLIMutable; Table "basket">]
+    [<CLIMutable; Table "baskets">]
     type SQLBasket = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
         [<Column "date">]                          Date: DateTime
@@ -27,7 +27,7 @@ module Root =
         [<Column "archived">]                      Archived: bool
     }
 
-    [<CLIMutable; Table "item">]
+    [<CLIMutable; Table "items">]
     type SQLItem = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
         [<Column "amount">]                        Amount: decimal
@@ -39,6 +39,7 @@ module Root =
     type SQLBasketQueryResult = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
         [<Column "date">]                          Date: DateTime
+        [<Column "storeid">]                       StoreId: int
         [<Column "total">]                         Total: decimal
     }
 
