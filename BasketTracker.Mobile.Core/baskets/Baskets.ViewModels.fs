@@ -26,7 +26,7 @@ module ViewModels =
         member self.Store
             with get() = store
 
-    and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Basket) as self =
+    and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Basket) =
         inherit ViewModelBase()
 
         let mutable image = "basket"
@@ -58,6 +58,7 @@ module ViewModels =
         inherit PageViewModel(Title = "Add a new basket to " + parent.Store.Name)
 
         let mutable date = DateTime.Now
+        let mutable time = DateTime.Now.TimeOfDay
 
         member self.Date
             with get() = date
@@ -65,6 +66,13 @@ module ViewModels =
                 base.OnPropertyChanging "Date"
                 date <- value
                 base.OnPropertyChanged "Date"
+
+        member self.Time
+            with get() = time
+            and set value =
+                base.OnPropertyChanging "Time"
+                time <- value
+                base.OnPropertyChanged "Time"
         
         member self.Add
             with get() =

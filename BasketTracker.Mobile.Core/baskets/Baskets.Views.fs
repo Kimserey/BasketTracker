@@ -67,6 +67,19 @@ module Views =
     type AddBasketPage(vm, navigator: Navigator) as self =
         inherit ContentPage()
 
+        let date = new DatePicker()
+        let time = new TimePicker()
+
+        let layout =
+            let layout = new StackLayout()
+            layout.Children.Add(date)
+            layout.Children.Add(time)
+            layout
+
         do
+            date.SetBinding(DatePicker.DateProperty, "Date")            
+            time.SetBinding(TimePicker.TimeProperty, "Time")
+            self.SetBinding(ContentPage.TitleProperty, "Title") 
+            
             self.BindingContext <- vm
-            self.SetBinding(ContentPage.TitleProperty, "Title")
+            self.Content <- layout
