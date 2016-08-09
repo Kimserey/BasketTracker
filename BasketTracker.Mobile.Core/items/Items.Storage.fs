@@ -20,8 +20,7 @@ module Storage =
             SELECT *
             FROM items i
             WHERE 
-                i.archived <> 1
-                && basketid = ?
+                i.archived <> 1 AND basketid = ?
             ORDER BY i.Name DESC
         """
 

@@ -11,7 +11,7 @@ open System.Collections.ObjectModel
 open System.ComponentModel
 
 type ItemListViewModel(api:ItemsApi, basket: Basket) as self =
-    inherit PageViewModel(Title = basket.Date.ToString("dd MMM YYYY"))
+    inherit PageViewModel(Title = basket.Date.ToString("dd MMM yyyy"))
 
     let list =
         new ObservableCollection<ItemCellViewModel>(
@@ -53,7 +53,7 @@ and ItemCellViewModel(parent: ItemListViewModel, api:ItemsApi, item: Item) =
                 |> ignore)
 
 type AddItemViewModel(parent: ItemListViewModel, api: ItemsApi)=
-    inherit ViewModelBase()
+    inherit PageViewModel(Title = "Add a new item")
 
     let mutable name = ""
     let mutable amount = 0.m
