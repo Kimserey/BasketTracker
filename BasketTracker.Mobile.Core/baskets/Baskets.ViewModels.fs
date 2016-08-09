@@ -76,7 +76,7 @@ module ViewModels =
         
         member self.Add
             with get() =
-                new Command<DateTime>(fun date -> 
-                   let newBasket = api.Add parent.Store.Id date
+                new Command(fun () -> 
+                   let newBasket = api.Add parent.Store.Id (self.Date.Add(self.Time))
                    parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
 

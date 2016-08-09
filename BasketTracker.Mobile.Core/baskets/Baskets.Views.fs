@@ -69,6 +69,15 @@ module Views =
 
         let date = new DatePicker()
         let time = new TimePicker()
+        let save =
+            new ToolbarItem(
+                "Save this basket", 
+                "save", 
+                fun () -> 
+                    self.Navigation.PopAsync()
+                    |> Async.AwaitTask
+                    |> Async.Ignore
+                    |> Async.StartImmediate)
 
         let layout =
             let layout = new StackLayout()
@@ -80,6 +89,9 @@ module Views =
             date.SetBinding(DatePicker.DateProperty, "Date")            
             time.SetBinding(TimePicker.TimeProperty, "Time")
             self.SetBinding(ContentPage.TitleProperty, "Title") 
-            
-            self.BindingContext <- vm
-            self.Content <- layout
+
+            // Toolbar items
+            base.ToolbarItems.Add(save)
+
+            base.BindingContext <- vm
+            base.Content <- layout
