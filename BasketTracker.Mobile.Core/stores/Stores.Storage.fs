@@ -1,4 +1,4 @@
-﻿namespace BasketTracker.Mobile.Core.Storage
+﻿namespace BasketTracker.Mobile.Core.Stores
 
 open System
 open System.IO
@@ -7,15 +7,9 @@ open SQLite.Net.Interop
 open SQLite.Net.Attributes
 open Xamarin.Forms
 open BasketTracker.Mobile.Core.Models
+open BasketTracker.Mobile.Core.Storage
 
-module Stores = 
-        
-    type StoresApi = {
-        List: unit -> Store list
-        Add: string -> Store
-        Update: int -> string -> unit
-        Remove: int-> unit
-    }
+module Storage = 
 
     let get (storeId: int) = 
         use conn = connect()
@@ -32,7 +26,7 @@ module Stores =
         conn.DeferredQuery<SQLStore>(sql, [||]) 
         |> Seq.toList
         |> List.map(fun s -> 
-            { Id = s.Id
+            { Id = StoreId s.Id
               Name = s.Name }: Store)
           
     let add name = 
@@ -43,20 +37,20 @@ module Stores =
               ImagePath = ""
               Archived = false } |> ignore
 
-        { Id = getLastId()
+        { Id = StoreId <| getLastId()
           Name = name }: Store
   
-    let update storeId name = 
+    let update (StoreId storeId) name = 
         use conn = connect()
         let store = get storeId
         conn.Update { store with Name = name } |> ignore
 
-    let remove storeId =
+    let remove (StoreId storeId) =
         use conn = connect()
         let store = get storeId
         conn.Update { store with Archived = true } |> ignore
 
-    let api =
+    let api: StoresApi =
         { List = list
           Add = add
           Update = update

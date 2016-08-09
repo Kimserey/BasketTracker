@@ -1,4 +1,4 @@
-﻿namespace BasketTracker.Mobile.Core.Storage
+﻿namespace BasketTracker.Mobile.Core.Baskets
 
 open System
 open System.IO
@@ -7,21 +7,14 @@ open SQLite.Net.Interop
 open SQLite.Net.Attributes
 open Xamarin.Forms
 open BasketTracker.Mobile.Core.Models
+open BasketTracker.Mobile.Core.Storage
 
-module Baskets =   
-    
-    type BasketsApi = {
-        List: int -> Basket list
-        Add: int -> DateTime -> Basket
-        Update: int -> DateTime -> unit
-        Remove: int-> unit
-    }
-
+module Storage =   
     let get (basketId: int) = 
         use conn = connect()
         conn.Get<SQLBasket>(basketId)
     
-    let list (storeId: int) =
+    let list (StoreId storeId) =
         let sql = """
             SELECT 
                 b.id id, 
@@ -39,12 +32,12 @@ module Baskets =
         conn.DeferredQuery<SQLBasketQueryResult>(sql, [| box storeId |]) |> Seq.toList
         |> Seq.toList
         |> List.map (fun b ->
-            { Id = b.Id
-              StoreId = storeId
+            { Id = BasketId b.Id
+              StoreId = StoreId storeId
               Total = b.Total
               Date = b.Date }:Basket)
 
-    let add (storeId: int) (date: DateTime) =
+    let add (StoreId storeId) date =
         use conn = connect()
         conn.Insert 
             { Id = 0
@@ -52,22 +45,22 @@ module Baskets =
               Date = date
               Archived = false } |> ignore
 
-        { Id = getLastId()
-          StoreId = storeId
+        { Id = BasketId <| getLastId()
+          StoreId = StoreId storeId
           Date = date
           Total = 0.m }: Basket
 
-    let update (basketId: int) date =
+    let update (BasketId basketId) date =
         use conn = connect()
         let basket = get basketId
         conn.Update { basket with Date = date } |> ignore
 
-    let remove (basketId: int) =
+    let remove (BasketId basketId) =
         use conn = connect()
         let basket = get basketId
         conn.Update { basket with Archived = true } |> ignore
 
-    let api = {
+    let api: BasketsApi = {
         List = list
         Add = add
         Update = update

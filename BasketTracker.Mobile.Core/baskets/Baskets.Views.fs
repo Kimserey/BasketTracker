@@ -6,93 +6,91 @@ open System
 open System.Collections
 open System.ComponentModel
 
-module Views =
+type BasketListPage(vm, navigator: Navigator) as self =
+    inherit ContentPage()
 
-    type BasketListPage(vm, navigator: Navigator) as self =
-        inherit ContentPage()
-    
-        let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
-        let label    = new Label()
-        let add = 
-            new ToolbarItem(
-                "Add new basket", 
-                "basket_add", 
-                fun () -> navigator.Basket.NavigateToAdd navigator <| Context self.BindingContext)
+    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
+    let label    = new Label()
+    let add = 
+        new ToolbarItem(
+            "Add new basket", 
+            "basket_add", 
+            fun () -> navigator.Basket.NavigateToAdd navigator <| Context self.BindingContext)
 
-        let layout = 
-            let layout = new StackLayout()
-            layout.Children.Add(label)
-            layout.Children.Add(listView)
-            layout
+    let layout = 
+        let layout = new StackLayout()
+        layout.Children.Add(label)
+        layout.Children.Add(listView)
+        layout
 
-        do
-            // Bindings
-            listView.SetBinding(ListView.ItemsSourceProperty, "List")
-            self.SetBinding(ContentPage.TitleProperty, "Title")
+    do
+        // Bindings
+        listView.SetBinding(ListView.ItemsSourceProperty, "List")
+        self.SetBinding(ContentPage.TitleProperty, "Title")
 
-            // Toolbar items
-            self.ToolbarItems.Add(add)
-            
-            self.BindingContext <- vm
-            self.Content <- layout
-    
-    and BasketViewCell(navigator: Navigator) as self=
-        inherit ViewCell()
+        // Toolbar items
+        self.ToolbarItems.Add(add)
+        
+        self.BindingContext <- vm
+        self.Content <- layout
 
-        let image  = new Image()
-        let date   = new Label(YAlign = TextAlignment.Center)
-        let amount = new Label(YAlign = TextAlignment.Center)
+and BasketViewCell(navigator: Navigator) as self=
+    inherit ViewCell()
 
-        let layout = 
-            let layout = new Grid()
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
-            layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-            layout.Children.Add(image, 0, 0)
-            layout.Children.Add(date, 1, 0)
-            layout.Children.Add(amount, 2, 0)
-            layout
+    let image  = new Image()
+    let date   = new Label(YAlign = TextAlignment.Center)
+    let amount = new Label(YAlign = TextAlignment.Center)
 
-        do
-            // Navigation events
-            self.Tapped.Add(fun _ -> navigator.Item.NavigateToItemList navigator <| Context self.BindingContext)
+    let layout = 
+        let layout = new Grid()
+        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
+        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
+        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
+        layout.Children.Add(image, 0, 0)
+        layout.Children.Add(date, 1, 0)
+        layout.Children.Add(amount, 2, 0)
+        layout
 
-            // Bindings
-            image.SetBinding(Image.SourceProperty, "Image")
-            date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
-            amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
+    do
+        // Navigation events
+        self.Tapped.Add(fun _ -> navigator.Item.NavigateToItemList navigator <| Context self.BindingContext)
 
-            self.View <- layout
+        // Bindings
+        image.SetBinding(Image.SourceProperty, "Image")
+        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
+        amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
 
-    type AddBasketPage(vm, navigator: Navigator) as self =
-        inherit ContentPage()
+        self.View <- layout
 
-        let date = new DatePicker()
-        let time = new TimePicker()
-        let save =
-            new ToolbarItem(
-                "Save this basket", 
-                "save", 
-                fun () -> 
-                    self.Navigation.PopAsync()
-                    |> Async.AwaitTask
-                    |> Async.Ignore
-                    |> Async.StartImmediate)
+type AddBasketPage(vm, navigator: Navigator) as self =
+    inherit ContentPage()
 
-        let layout =
-            let layout = new StackLayout()
-            layout.Children.Add(date)
-            layout.Children.Add(time)
-            layout
+    let date = new DatePicker()
+    let time = new TimePicker()
+    let save =
+        new ToolbarItem(
+            "Save this basket", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
 
-        do
-            date.SetBinding(DatePicker.DateProperty, "Date")            
-            time.SetBinding(TimePicker.TimeProperty, "Time")
-            self.SetBinding(ContentPage.TitleProperty, "Title") 
-            save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(date)
+        layout.Children.Add(time)
+        layout
 
-            // Toolbar items
-            base.ToolbarItems.Add(save)
+    do
+        date.SetBinding(DatePicker.DateProperty, "Date")            
+        time.SetBinding(TimePicker.TimeProperty, "Time")
+        self.SetBinding(ContentPage.TitleProperty, "Title") 
+        save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
 
-            base.BindingContext <- vm
-            base.Content <- layout
+        // Toolbar items
+        base.ToolbarItems.Add(save)
+
+        base.BindingContext <- vm
+        base.Content <- layout

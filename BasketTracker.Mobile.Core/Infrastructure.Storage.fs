@@ -7,10 +7,33 @@ open SQLite.Net.Interop
 open SQLite.Net.Attributes
 open Xamarin.Forms
 open BasketTracker.Mobile.Core
+open BasketTracker.Mobile.Core.Models
+
+type StoresApi = {
+    List: unit -> Store list
+    Add: string -> Store
+    Update: StoreId -> string -> unit
+    Remove: StoreId-> unit
+}
+
+type BasketsApi = {
+    List: StoreId -> Basket list
+    Add: StoreId -> DateTime -> Basket
+    Update: BasketId -> DateTime -> unit
+    Remove: BasketId-> unit
+}
+    
+type ItemsApi = {
+    List: BasketId -> Item list
+    Add: BasketId -> string -> decimal-> Item
+    Update: ItemId -> string -> decimal -> unit
+    Remove: ItemId-> unit
+} 
+
 
 [<AutoOpen>]
 module Root =
-
+    
     [<CLIMutable; Table "stores">]
     type SQLStore = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
@@ -22,16 +45,17 @@ module Root =
     [<CLIMutable; Table "baskets">]
     type SQLBasket = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
-        [<Column "date">]                          Date: DateTime
         [<Column "storeid"; Indexed>]              StoreId: int
+        [<Column "date">]                          Date: DateTime
         [<Column "archived">]                      Archived: bool
     }
 
     [<CLIMutable; Table "items">]
     type SQLItem = {
         [<Column "id"; AutoIncrement; PrimaryKey>] Id: int
-        [<Column "amount">]                        Amount: decimal
         [<Column "basketid"; Indexed>]             BasketId: int
+        [<Column "amount">]                        Amount: decimal
+        [<Column "name">]                          Name: string
         [<Column "archived">]                      Archived: bool
     }
 
