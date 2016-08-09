@@ -74,7 +74,7 @@ module ViewModels =
                 time <- value
                 base.OnPropertyChanged "Time"
         
-        member self.Add
+        member self.AddCommand
             with get() =
                 new Command(fun () -> 
                    let newBasket = api.Add parent.Store.Id (self.Date.Add(self.Time))

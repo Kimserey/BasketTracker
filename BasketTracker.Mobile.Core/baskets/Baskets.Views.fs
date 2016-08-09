@@ -89,6 +89,7 @@ module Views =
             date.SetBinding(DatePicker.DateProperty, "Date")            
             time.SetBinding(TimePicker.TimeProperty, "Time")
             self.SetBinding(ContentPage.TitleProperty, "Title") 
+            save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
 
             // Toolbar items
             base.ToolbarItems.Add(save)
