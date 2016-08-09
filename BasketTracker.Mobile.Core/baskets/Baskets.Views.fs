@@ -62,7 +62,7 @@ and BasketViewCell(navigator: Navigator) as self=
 
         self.View <- layout
 
-type AddBasketPage(vm, navigator: Navigator) as self =
+type AddBasketPage(vm) as self =
     inherit ContentPage()
 
     let date = new DatePicker()
@@ -84,6 +84,7 @@ type AddBasketPage(vm, navigator: Navigator) as self =
         layout
 
     do
+        // Bindings
         date.SetBinding(DatePicker.DateProperty, "Date")            
         time.SetBinding(TimePicker.TimeProperty, "Time")
         self.SetBinding(ContentPage.TitleProperty, "Title") 

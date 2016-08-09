@@ -59,7 +59,7 @@ and StoreViewCell(navigator: Navigator) as self =
         self.View <- layout
 
 
-type AddStorePage(vm: obj) as self =
+type AddStorePage(vm) as self =
     inherit ContentPage()
 
     let entry = new Entry(Placeholder = "Enter a store name here")

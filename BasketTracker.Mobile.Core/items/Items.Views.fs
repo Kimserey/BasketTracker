@@ -58,8 +58,37 @@ and ItemViewCell(navigator: Navigator) as self =
 
         self.View <- layout
 
-type AddItemPage(vm, navigator: Navigator) as self =
+type AddItemPage(vm) as self =
     inherit ContentPage()
 
+    let name = new Entry()
+    let amount = new Entry(Keyboard = Keyboard.Numeric)
+    
+    let save =
+        new ToolbarItem(
+            "Save this item", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(name)
+        layout.Children.Add(amount)
+        layout
+
     do
+        // Bindings
+        name.SetBinding(Entry.TextProperty, "Name")
+        amount.SetBinding(Entry.TextProperty, "Amount")
         self.SetBinding(ContentPage.TitleProperty, "Title") 
+        save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
+        
+        // Toolbar items
+        base.ToolbarItems.Add(save)
+
+        self.BindingContext <- vm
+        self.Content <- layout

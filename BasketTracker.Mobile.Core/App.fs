@@ -52,7 +52,7 @@ type App() =
                 fun nav (Context ctx) -> 
                     let parent = ctx  :?> BasketListViewModel
                     let vm = new AddBasketViewModel(parent, Baskets.Storage.api)
-                    let page = new AddBasketPage(vm, nav)
+                    let page = new AddBasketPage(vm)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask
                     |> Async.StartImmediate
@@ -73,7 +73,7 @@ type App() =
                 fun nav (Context ctx) -> 
                     let parent = ctx  :?> ItemListViewModel
                     let vm = new AddItemViewModel(parent, Items.Storage.api)
-                    let page = new AddItemPage(vm, nav)
+                    let page = new AddItemPage(vm)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask
                     |> Async.StartImmediate } }
