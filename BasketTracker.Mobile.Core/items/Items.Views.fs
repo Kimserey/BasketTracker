@@ -13,7 +13,7 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     
     let emptyMsg =
         new Label(
-            Text = "You haven't added any item yet. Click on the + icon to add a item.", 
+            Text = "You haven't added any item yet. Click on the + icon to add an item.", 
             XAlign = TextAlignment.Center)
 
     let add = 
