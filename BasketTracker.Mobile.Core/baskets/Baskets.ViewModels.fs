@@ -72,7 +72,7 @@ and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Ba
 type AddBasketViewModel(parent: BasketListViewModel, api: BasketsApi) =
     inherit PageViewModel(Title = "Add a new basket")
 
-    let mutable date = DateTime.Now
+    let mutable date = DateTime.Now.Date
     let mutable time = DateTime.Now.TimeOfDay
 
     member self.Date
@@ -92,8 +92,8 @@ type AddBasketViewModel(parent: BasketListViewModel, api: BasketsApi) =
     member self.AddCommand
         with get() =
             new Command(fun () -> 
-               let newBasket = api.Add parent.StoreId (self.Date.Add(self.Time))
-               parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
+                let newBasket = api.Add parent.StoreId (self.Date.Add(self.Time))
+                parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
 
 type UpdateBasketViewModel(parent: BasketCellViewModel, api: BasketsApi) =
     inherit PageViewModel(Title = "Update basket")
