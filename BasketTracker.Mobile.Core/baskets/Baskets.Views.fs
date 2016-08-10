@@ -55,7 +55,7 @@ and BasketViewCell(navigator: Navigator) as self=
     let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
     let layout = 
-        let layout = new Grid(Padding = new Thickness(10.))
+        let layout = new Grid()
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
