@@ -48,13 +48,13 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
 and ItemViewCell(navigator: Navigator) as self =
     inherit ViewCell()
 
-    let name   = new Label(XAlign = TextAlignment.Start)
-    let amount = new Label(XAlign = TextAlignment.End)
+    let name   = new Label(XAlign = TextAlignment.Start, YAlign = TextAlignment.Center)
+    let amount = new Label(XAlign = TextAlignment.End, YAlign = TextAlignment.Center)
     let update = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
     let remove = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
     let layout = 
-        let layout = new Grid()
+        let layout = new Grid(Padding = new Thickness(10.))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.Children.Add(name, 0, 0)

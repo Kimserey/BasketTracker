@@ -55,9 +55,9 @@ and StoreViewCell(navigator: Navigator) as self =
     let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
     let layout = 
-        let layout = new Grid()
+        let layout = new Grid(Padding = new Thickness(10.))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
+        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(4., GridUnitType.Star)))
         layout.Children.Add(shop, 0, 0)
         layout.Children.Add(name, 1, 0)
         layout
