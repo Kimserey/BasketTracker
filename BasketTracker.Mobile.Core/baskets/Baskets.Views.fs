@@ -84,8 +84,8 @@ and BasketViewCell(navigator: Navigator) as self=
 
 type AddBasketPage(vm) as self =
     inherit ContentPage()
-
-    let date = new DatePicker()
+    
+    let date = new DatePicker(Format = "dd MMM yyyy")
     let time = new TimePicker()
     let save =
         new ToolbarItem(
@@ -98,7 +98,7 @@ type AddBasketPage(vm) as self =
                 |> Async.StartImmediate)
 
     let layout =
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(date)
         layout.Children.Add(time)
         layout
@@ -120,7 +120,7 @@ type AddBasketPage(vm) as self =
 type UpdateBasketPage(vm) as self =
     inherit ContentPage()
     
-    let date = new DatePicker()
+    let date = new DatePicker(Format = "dd MMM yyyy")
     let time = new TimePicker()
     let save =
         new ToolbarItem(
@@ -133,7 +133,7 @@ type UpdateBasketPage(vm) as self =
                 |> Async.StartImmediate)
 
     let layout =
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(date)
         layout.Children.Add(time)
         layout

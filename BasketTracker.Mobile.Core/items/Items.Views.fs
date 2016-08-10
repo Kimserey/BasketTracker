@@ -94,7 +94,7 @@ type AddItemPage(vm) as self =
                 |> Async.StartImmediate)
 
     let layout =
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(name)
         layout.Children.Add(amount)
         layout
@@ -130,7 +130,7 @@ type UpdateItemPage(vm) as self =
                 |> Async.StartImmediate)
 
     let layout =
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(name)
         layout.Children.Add(amount)
         layout

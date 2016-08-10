@@ -27,7 +27,7 @@ type BasketListViewModel(storeId, storeName: string, api: BasketsApi) =
     override self.Refresh() = 
         let cells = 
             api.List storeId
-            |> List.map(fun b -> new BasketCellViewModel(self, api, b))
+            |> List.map (fun b -> new BasketCellViewModel(self, api, b))
             
         self.List <- new ObservableCollection<BasketCellViewModel>(cells)
 

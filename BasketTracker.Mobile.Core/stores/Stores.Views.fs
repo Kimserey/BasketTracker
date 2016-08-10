@@ -93,7 +93,7 @@ type AddStorePage(vm) as self =
                 |> Async.StartImmediate)
 
     let layout = 
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(entry)
         layout
 
@@ -128,7 +128,7 @@ type UpdateStorePage(vm: obj) as self =
                 |> Async.StartImmediate)
 
     let layout =
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(10.))
         layout.Children.Add(entry)
         layout
 
