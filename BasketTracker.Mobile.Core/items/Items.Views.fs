@@ -6,7 +6,7 @@ open System
 open System.Collections
 open System.ComponentModel
 
-type ItemListPage(vm, navigator: Navigator) as self =
+type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new ItemViewCell(navigator))))
@@ -30,9 +30,14 @@ type ItemListPage(vm, navigator: Navigator) as self =
 
         // Toolbar items
         self.ToolbarItems.Add(add)
-        
+
+
         self.BindingContext <- vm
         self.Content <- layout
+
+    override self.OnAppearing() =
+        base.OnAppearing()
+        vm.Refresh()
 
 and ItemViewCell(navigator: Navigator) as self =
     inherit ViewCell()
@@ -49,9 +54,6 @@ and ItemViewCell(navigator: Navigator) as self =
         layout
 
     do
-        // Navigation events
-        self.Tapped.Add(fun _ -> navigator.Item.NavigateToItemList navigator <| Context self.BindingContext)
-
         // Bindings
         name.SetBinding(Label.TextProperty, "Name")
         amount.SetBinding(Label.TextProperty, "Amount", stringFormat = "{0:C2}")

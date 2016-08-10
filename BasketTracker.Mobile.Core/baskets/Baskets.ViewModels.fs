@@ -9,20 +9,27 @@ open System.Collections
 open System.Collections.ObjectModel
 open System.ComponentModel
 
-type BasketListViewModel(api: BasketsApi, store: Store) as self =
-    inherit PageViewModel(Title = store.Name)
+type BasketListViewModel(api: BasketsApi, store: Store) =
+    inherit ListPageViewModel(Title = store.Name)
 
-    let list =
-        new ObservableCollection<BasketCellViewModel>(
-            api.List store.Id
-            |> List.map(fun b -> new BasketCellViewModel(self, api, b))
-        )
+    let mutable list = new ObservableCollection<BasketCellViewModel>()
 
     member self.List
         with get() = list
+        and set value =
+            base.OnPropertyChanging("List")
+            list <- value
+            base.OnPropertyChanged("List")
 
     member self.Store
         with get() = store
+
+    override self.Refresh() = 
+        let cells = 
+            api.List store.Id
+            |> List.map(fun b -> new BasketCellViewModel(self, api, b))
+            
+        self.List <- new ObservableCollection<BasketCellViewModel>(cells)
 
 and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Basket) =
     inherit ViewModelBase()

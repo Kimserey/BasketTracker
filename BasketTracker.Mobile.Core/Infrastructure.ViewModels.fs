@@ -35,5 +35,9 @@ type PageViewModel() =
             title <- value
             self.OnPropertyChanged "Title"
 
-            
+[<AbstractClass>]
+type ListPageViewModel() =
+    inherit PageViewModel()
+
+    abstract member Refresh: unit -> unit
 

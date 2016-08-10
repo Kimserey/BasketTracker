@@ -4,7 +4,7 @@ open BasketTracker.Mobile.Core
 open Xamarin.Forms
 open System
 
-type StoreListPage(vm, navigator: Navigator) as self =
+type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = 
@@ -26,6 +26,10 @@ type StoreListPage(vm, navigator: Navigator) as self =
 
         base.BindingContext <- vm
         self.Content <- listView
+
+    override self.OnAppearing() =
+        base.OnAppearing()
+        vm.Refresh()
         
 and StoreViewCell(navigator: Navigator) as self =
     inherit ViewCell()

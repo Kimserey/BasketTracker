@@ -9,15 +9,24 @@ open System.Collections
 open System.ComponentModel
 open System.Collections.ObjectModel
 
-type StoreListViewModel(api: StoresApi) as self =
-    inherit PageViewModel(Title = "Stores")
+type StoreListViewModel(api: StoresApi) =
+    inherit ListPageViewModel(Title = "Stores")
 
-    let list =
-        let list = api.List() |> List.map(fun (s: Store) -> new StoreCellViewModel(self, api, s))
-        new ObservableCollection<StoreCellViewModel>(list)
-    
+    let mutable list = new ObservableCollection<StoreCellViewModel>()
+
     member self.List
         with get() = list
+        and set value =
+            base.OnPropertyChanging "List"
+            list <- value
+            base.OnPropertyChanged "List"
+
+    override self.Refresh() = 
+        let cells = 
+            api.List() 
+            |> List.map(fun (s: Store) -> new StoreCellViewModel(self, api, s))
+        
+        self.List <- new ObservableCollection<StoreCellViewModel>(cells)
 
 and StoreCellViewModel(parentViewModel, api, store) =
     inherit ViewModelBase()

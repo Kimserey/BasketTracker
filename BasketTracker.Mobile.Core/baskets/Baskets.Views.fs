@@ -6,7 +6,7 @@ open System
 open System.Collections
 open System.ComponentModel
 
-type BasketListPage(vm, navigator: Navigator) as self =
+type BasketListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
@@ -33,6 +33,10 @@ type BasketListPage(vm, navigator: Navigator) as self =
         
         self.BindingContext <- vm
         self.Content <- layout
+
+    override self.OnAppearing() =
+        base.OnAppearing()
+        vm.Refresh()
 
 and BasketViewCell(navigator: Navigator) as self=
     inherit ViewCell()
