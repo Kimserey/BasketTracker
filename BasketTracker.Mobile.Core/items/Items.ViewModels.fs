@@ -72,7 +72,7 @@ type AddItemViewModel(parent: ItemListViewModel, api: ItemsApi)=
             amount <- value
             base.OnPropertyChanged "Amount"
 
-    member self.AddCommant
+    member self.AddCommand
         with get() =
             new Command(fun () ->
                 let item = api.Add parent.Basket.Id self.Name self.Amount
