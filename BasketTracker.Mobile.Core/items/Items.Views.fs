@@ -80,7 +80,7 @@ and ItemViewCell(navigator: Navigator) as self =
 type AddItemPage(vm) as self =
     inherit ContentPage()
 
-    let name = new Entry()
+    let name = new Entry(Placeholder = "Enter the name of the item here")
     let amount = new Entry(Keyboard = Keyboard.Numeric)
     
     let save =
@@ -116,7 +116,7 @@ type AddItemPage(vm) as self =
 type UpdateItemPage(vm) as self =
     inherit ContentPage()
     
-    let name = new Entry()
+    let name = new Entry(Placeholder = "Enter the name of the item here")
     let amount = new Entry(Keyboard = Keyboard.Numeric)
     
     let save =

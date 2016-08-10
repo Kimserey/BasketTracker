@@ -81,7 +81,7 @@ and StoreViewCell(navigator: Navigator) as self =
 type AddStorePage(vm) as self =
     inherit ContentPage()
 
-    let entry = new Entry(Placeholder = "Enter a store name here")
+    let entry = new Entry(Placeholder = "Enter the name of the store here")
     let save =
         new ToolbarItem(
             "Save this store", 
