@@ -31,7 +31,6 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         // Toolbar items
         self.ToolbarItems.Add(add)
 
-
         self.BindingContext <- vm
         self.Content <- layout
 
@@ -39,11 +38,14 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         base.OnAppearing()
         vm.Refresh()
 
+
 and ItemViewCell(navigator: Navigator) as self =
     inherit ViewCell()
 
     let name   = new Label(XAlign = TextAlignment.Start)
     let amount = new Label(XAlign = TextAlignment.End)
+    let update = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
+    let remove = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
     let layout = 
         let layout = new Grid()
@@ -54,11 +56,20 @@ and ItemViewCell(navigator: Navigator) as self =
         layout
 
     do
+        // Navigation events
+        update.Clicked.Add(fun _ -> navigator.Item.NavigateToUpdate navigator <| Context self.BindingContext)
+
         // Bindings
         name.SetBinding(Label.TextProperty, "Name")
         amount.SetBinding(Label.TextProperty, "Amount", stringFormat = "{0:C2}")
+        remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
+
+        // Context actions
+        self.ContextActions.Add(update)
+        self.ContextActions.Add(remove)
 
         self.View <- layout
+
 
 type AddItemPage(vm) as self =
     inherit ContentPage()
@@ -94,3 +105,40 @@ type AddItemPage(vm) as self =
 
         self.BindingContext <- vm
         self.Content <- layout
+
+
+type UpdateItemPage(vm) as self =
+    inherit ContentPage()
+    
+    let name = new Entry()
+    let amount = new Entry(Keyboard = Keyboard.Numeric)
+    
+    let save =
+        new ToolbarItem(
+            "Update this item", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(name)
+        layout.Children.Add(amount)
+        layout
+
+    do
+        // Bindings
+        name.SetBinding(Entry.TextProperty, "Name")
+        amount.SetBinding(Entry.TextProperty, "Amount")
+        self.SetBinding(ContentPage.TitleProperty, "Title") 
+        save.SetBinding(ToolbarItem.CommandProperty, "UpdateCommand")
+        
+        // Toolbar items
+        base.ToolbarItems.Add(save)
+
+        self.BindingContext <- vm
+        self.Content <- layout
+

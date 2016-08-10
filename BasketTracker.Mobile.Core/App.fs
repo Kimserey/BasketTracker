@@ -32,7 +32,7 @@ type App() =
               NavigateToUpdate =
                 fun nav (Context ctx) ->
                     let parent = ctx :?> StoreCellViewModel
-                    let vm = new UpdateStoreViewModel(parent, Stores.Storage.api, "Update an existing store", parent.Store)
+                    let vm = new UpdateStoreViewModel(parent, Stores.Storage.api, "Update an existing store")
                     let page = new UpdateStorePage(vm)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask 
@@ -42,7 +42,7 @@ type App() =
             { NavigateToBasketList =
                 fun nav (Context ctx) ->
                     let parent = ctx :?> StoreCellViewModel
-                    let vm = new BasketListViewModel(Baskets.Storage.api, parent.Store)
+                    let vm = new BasketListViewModel(parent.Id, parent.Name, Baskets.Storage.api)
                     let page = new BasketListPage(vm, nav)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask
@@ -57,13 +57,20 @@ type App() =
                     |> Async.AwaitTask
                     |> Async.StartImmediate
 
-              NavigateToUpdate = fun nav (Context ctx) -> () }
+              NavigateToUpdate = 
+                fun nav (Context ctx) -> 
+                    let parent = ctx :?> BasketCellViewModel
+                    let vm = new UpdateBasketViewModel(parent, Baskets.Storage.api)
+                    let page = new UpdateBasketPage(vm)
+                    nav.Navigation.PushAsync(page)
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate }
          
           Item =
             { NavigateToItemList =
                 fun nav (Context ctx) -> 
                     let parent = ctx :?> BasketCellViewModel
-                    let vm = new ItemListViewModel(Items.Storage.api, parent.Basket)
+                    let vm = new ItemListViewModel(parent.Id, parent.Date, Items.Storage.api)
                     let page = new ItemListPage(vm, nav)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask
@@ -74,6 +81,15 @@ type App() =
                     let parent = ctx  :?> ItemListViewModel
                     let vm = new AddItemViewModel(parent, Items.Storage.api)
                     let page = new AddItemPage(vm)
+                    nav.Navigation.PushAsync(page)
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate 
+
+              NavigateToUpdate = 
+                fun nav (Context ctx) -> 
+                    let parent = ctx :?> ItemCellViewModel
+                    let vm = new UpdateItemViewModel(parent, Items.Storage.api)
+                    let page = new UpdateItemPage(vm)
                     nav.Navigation.PushAsync(page)
                     |> Async.AwaitTask
                     |> Async.StartImmediate } }

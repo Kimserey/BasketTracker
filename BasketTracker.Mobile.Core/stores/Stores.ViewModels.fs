@@ -33,8 +33,8 @@ and StoreCellViewModel(parentViewModel, api, store) =
 
     let mutable name = store.Name
 
-    member self.Store
-        with get() = store
+    member self.Id
+        with get() = store.Id
 
     member self.Name
         with get() = name
@@ -51,7 +51,7 @@ and StoreCellViewModel(parentViewModel, api, store) =
                 |> ignore)
 
 
-type AddStoreViewModel(parentViewModel: StoreListViewModel, api: StoresApi, title) =
+type AddStoreViewModel(parent: StoreListViewModel, api: StoresApi, title) =
     inherit PageViewModel(Title = title)
 
     let mutable name = ""
@@ -67,13 +67,13 @@ type AddStoreViewModel(parentViewModel: StoreListViewModel, api: StoresApi, titl
         with get() = 
             new Command<string>(fun name ->
                 let newStore = api.Add name
-                parentViewModel.List.Add (new StoreCellViewModel(parentViewModel, api, newStore)))
+                parent.List.Add(new StoreCellViewModel(parent, api, newStore)))
                 
 
-type UpdateStoreViewModel(parentViewModel: StoreCellViewModel, api: StoresApi, title, store: Store) =
+type UpdateStoreViewModel(parent: StoreCellViewModel, api: StoresApi, title) =
     inherit PageViewModel(Title = title)
 
-    let mutable name: string = store.Name
+    let mutable name: string = parent.Name
 
     member self.Name 
         with get() = name
@@ -85,5 +85,5 @@ type UpdateStoreViewModel(parentViewModel: StoreCellViewModel, api: StoresApi, t
     member self.UpdateCommand
         with get() =
             new Command<string>(fun name -> 
-                let updatedStore = api.Update store.Id name
-                parentViewModel.Name <- name)
+                let updatedStore = api.Update parent.Id name
+                parent.Name <- name)

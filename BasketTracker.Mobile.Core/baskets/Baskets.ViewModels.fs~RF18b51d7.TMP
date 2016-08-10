@@ -9,8 +9,8 @@ open System.Collections
 open System.Collections.ObjectModel
 open System.ComponentModel
 
-type BasketListViewModel(storeId, storeName: string, api: BasketsApi) =
-    inherit ListPageViewModel(Title = storeName)
+type BasketListViewModel(api: BasketsApi, store: Store) =
+    inherit ListPageViewModel(Title = store.Name)
 
     let mutable list = new ObservableCollection<BasketCellViewModel>()
 
@@ -21,12 +21,12 @@ type BasketListViewModel(storeId, storeName: string, api: BasketsApi) =
             list <- value
             base.OnPropertyChanged("List")
 
-    member self.StoreId
-        with get() = storeId
+    member self.Store
+        with get() = store
 
     override self.Refresh() = 
         let cells = 
-            api.List storeId
+            api.List store.Id
             |> List.map(fun b -> new BasketCellViewModel(self, api, b))
             
         self.List <- new ObservableCollection<BasketCellViewModel>(cells)
@@ -38,9 +38,6 @@ and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Ba
     let mutable date = basket.Date
     let mutable total = basket.Total
     
-    member self.Id
-        with get() = basket.Id
-
     member self.Date
         with get() = date
         and set value =
@@ -61,7 +58,10 @@ and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Ba
             base.OnPropertyChanging "Total"
             total <- value
             base.OnPropertyChanged "Total"
-            
+
+    member self.Basket
+        with get() = basket
+
     member self.RemoveCommand
         with get() =
             new Command(fun () ->
@@ -70,7 +70,7 @@ and BasketCellViewModel(parent: BasketListViewModel, api: BasketsApi, basket: Ba
                 |> ignore)
     
 type AddBasketViewModel(parent: BasketListViewModel, api: BasketsApi) =
-    inherit PageViewModel(Title = "Add a new basket")
+    inherit PageViewModel(Title = "Add a new basket to " + parent.Store.Name)
 
     let mutable date = DateTime.Now
     let mutable time = DateTime.Now.TimeOfDay
@@ -92,14 +92,15 @@ type AddBasketViewModel(parent: BasketListViewModel, api: BasketsApi) =
     member self.AddCommand
         with get() =
             new Command(fun () -> 
-               let newBasket = api.Add parent.StoreId (self.Date.Add(self.Time))
+               let newBasket = api.Add parent.Store.Id (self.Date.Add(self.Time))
                parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
 
-type UpdateBasketViewModel(parent: BasketCellViewModel, api: BasketsApi) =
-    inherit PageViewModel(Title = "Update basket")
-    
-    let mutable date = parent.Date.Date
-    let mutable time = parent.Date.TimeOfDay
+type UpdateBasketViewModel(parent: BasketCellViewModel, api: BasketsApi) as self =
+    inherit PageViewModel()
+
+    let mutable title = "Update " + parent.Basket.Date.ToString("dd MMM yyyy")
+    let mutable date = parent.Basket.Date.Date
+    let mutable time = parent.Basket.Date.TimeOfDay
 
     member self.Date
         with get() = date
@@ -118,7 +119,6 @@ type UpdateBasketViewModel(parent: BasketCellViewModel, api: BasketsApi) =
     member self.UpdateCommand
         with get() =
             new Command(fun () -> 
-                let date = self.Date.Add(self.Time)
-                api.Update parent.Id date
-                parent.Date <- date)
+               api.Update parent.Basket.Id (sef.Date.Add(self.Time))
+               parent.List.Add (new BasketCellViewModel(parent, api, newBasket)))
 

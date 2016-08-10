@@ -26,4 +26,5 @@ and BasketNavigator = {
 and ItemNavigator = {
     NavigateToItemList: Navigator -> Context -> unit
     NavigateToAdd: Navigator -> Context -> unit
+    NavigateToUpdate: Navigator -> Context -> unit
 }

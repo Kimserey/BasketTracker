@@ -31,12 +31,13 @@ type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         base.OnAppearing()
         vm.Refresh()
         
+
 and StoreViewCell(navigator: Navigator) as self =
     inherit ViewCell()
 
     let name    = new Label(YAlign = TextAlignment.Center)
     let shop    = new Image(Source = FileImageSource.op_Implicit "shop")
-    let update    = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
+    let update  = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
     let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
 
     let layout = 
@@ -53,7 +54,7 @@ and StoreViewCell(navigator: Navigator) as self =
         update.Clicked.Add(fun _ -> navigator.Store.NavigateToUpdate navigator<| Context  self.BindingContext)
         
         // Bindings
-        name.SetBinding(Label.TextProperty, ".Name")
+        name.SetBinding(Label.TextProperty, "Name")
         remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
 
         // Context actions

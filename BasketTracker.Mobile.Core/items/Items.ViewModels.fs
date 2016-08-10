@@ -10,8 +10,8 @@ open System.Collections
 open System.Collections.ObjectModel
 open System.ComponentModel
 
-type ItemListViewModel(api:ItemsApi, basket: Basket) =
-    inherit ListPageViewModel(Title = basket.Date.ToString("dd MMM yyyy"))
+type ItemListViewModel(basketId, basketDate: DateTime, api:ItemsApi) =
+    inherit ListPageViewModel(Title = basketDate.ToString("dd MMM yyyy"))
 
     let mutable list = 
         new ObservableCollection<ItemCellViewModel>()
@@ -23,15 +23,15 @@ type ItemListViewModel(api:ItemsApi, basket: Basket) =
             list <- value
             base.OnPropertyChanged("List")
 
-    member self.Basket
-        with get() = basket
+    member self.BasketId
+        with get() = basketId
 
     override self.Refresh() = 
         let cells = 
-            api.List basket.Id
+            api.List basketId
             |> List.map(fun i -> new ItemCellViewModel(self, api, i))
 
-        list <- new ObservableCollection<ItemCellViewModel>(cells)
+        self.List <- new ObservableCollection<ItemCellViewModel>(cells)
 
 
 and ItemCellViewModel(parent: ItemListViewModel, api:ItemsApi, item: Item) =
@@ -39,6 +39,9 @@ and ItemCellViewModel(parent: ItemListViewModel, api:ItemsApi, item: Item) =
 
     let mutable name = item.Name
     let mutable amount = item.Amount
+    
+    member self.Id
+        with get() = item.Id
 
     member self.Name
         with get() = name
@@ -53,7 +56,7 @@ and ItemCellViewModel(parent: ItemListViewModel, api:ItemsApi, item: Item) =
             base.OnPropertyChanging "Amount"
             amount <- value
             base.OnPropertyChanged "Amount"
-
+            
     member self.RemoveCommand
         with get() =
             new Command(fun () ->
@@ -84,5 +87,32 @@ type AddItemViewModel(parent: ItemListViewModel, api: ItemsApi)=
     member self.AddCommand
         with get() =
             new Command(fun () ->
-                let item = api.Add parent.Basket.Id self.Name self.Amount
+                let item = api.Add parent.BasketId self.Name self.Amount
                 parent.Refresh())
+
+type UpdateItemViewModel(parent: ItemCellViewModel, api: ItemsApi) =
+    inherit PageViewModel(Title = "Update item")
+    
+    let mutable name = parent.Name
+    let mutable amount = parent.Amount
+
+    member self.Name
+        with get() = name
+        and set value =
+            base.OnPropertyChanging "Name"
+            name <- value
+            base.OnPropertyChanged "Name"
+            
+    member self.Amount
+        with get() = amount
+        and set value =
+            base.OnPropertyChanging "Amount"
+            amount <- value
+            base.OnPropertyChanged "Amount"
+
+    member self.UpdateCommand
+        with get() =
+            new Command(fun () -> 
+                api.Update parent.Id self.Name self.Amount
+                parent.Name <- self.Name
+                parent.Amount <- self.Amount)
