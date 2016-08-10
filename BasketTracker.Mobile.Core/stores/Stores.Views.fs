@@ -3,6 +3,8 @@ namespace BasketTracker.Mobile.Core.Stores
 open BasketTracker.Mobile.Core
 open Xamarin.Forms
 open System
+open System.Globalization
+open System.Linq
 
 type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     inherit ContentPage()
@@ -10,22 +12,34 @@ type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     let listView = 
         new ListView(ItemTemplate = new DataTemplate(fun () -> box (new StoreViewCell(navigator))))
         
+    let emptyMsg =
+        new Label(
+            Text = "You haven't added any store yet. Click on the + icon to add a store.", 
+            XAlign = TextAlignment.Center)
+
     let add = 
         new ToolbarItem(
             "Add new store", 
             "shop_add", 
             fun () -> navigator.Store.NavigateToAdd navigator <| Context self.BindingContext)
 
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(emptyMsg)
+        layout.Children.Add(listView)
+        layout
+
     do
         // Bindings            
         self.SetBinding(ContentPage.TitleProperty, "Title")
         listView.SetBinding(ListView.ItemsSourceProperty, "List")
+        emptyMsg.SetBinding(Label.IsVisibleProperty, "List", converter = new IsEmptyConverter())
 
         // Toolbar items
         self.ToolbarItems.Add(add)
 
         base.BindingContext <- vm
-        self.Content <- listView
+        base.Content <- layout
 
     override self.OnAppearing() =
         base.OnAppearing()

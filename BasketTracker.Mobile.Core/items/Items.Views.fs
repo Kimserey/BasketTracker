@@ -10,7 +10,12 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new ItemViewCell(navigator))))
-    let label    = new Label()
+    
+    let emptyMsg =
+        new Label(
+            Text = "You haven't added any item yet. Click on the + icon to add a item.", 
+            XAlign = TextAlignment.Center)
+
     let add = 
         new ToolbarItem(
             "Add new item", 
@@ -19,14 +24,15 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
 
     let layout = 
         let layout = new StackLayout()
-        layout.Children.Add(label)
+        layout.Children.Add(emptyMsg)
         layout.Children.Add(listView)
         layout
 
     do
         // Bindings
-        listView.SetBinding(ListView.ItemsSourceProperty, "List")
         self.SetBinding(ContentPage.TitleProperty, "Title")
+        listView.SetBinding(ListView.ItemsSourceProperty, "List")
+        emptyMsg.SetBinding(Label.IsVisibleProperty, "List", converter = new IsEmptyConverter())
 
         // Toolbar items
         self.ToolbarItems.Add(add)

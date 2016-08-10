@@ -44,9 +44,10 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Domain.Models.fs" />
     <Compile Include="Infrastructure.Platform.fs" />
+    <Compile Include="Infrastructure.Converters.fs" />
+    <Compile Include="Infrastructure.ViewModels.fs" />
     <Compile Include="Infrastructure.Navigator.fs" />
     <Compile Include="Infrastructure.Storage.fs" />
-    <Compile Include="Infrastructure.ViewModels.fs" />
     <Compile Include="stores\Stores.Storage.fs" />
     <Compile Include="stores\Stores.ViewModels.fs" />
     <Compile Include="stores\Stores.Views.fs" />

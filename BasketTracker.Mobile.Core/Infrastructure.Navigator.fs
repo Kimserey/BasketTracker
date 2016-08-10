@@ -1,7 +1,7 @@
 ﻿namespace BasketTracker.Mobile.Core
 
-open Xamarin.Forms
 open Models
+open Xamarin.Forms
 
 type Context = Context of obj
 
@@ -10,7 +10,11 @@ type Navigator = {
     Store: StoreNavigator
     Basket: BasketNavigator 
     Item: ItemNavigator
-}
+} with
+     member self.Navigate(page) =
+        self.Navigation.PushAsync(page)
+        |> Async.AwaitTask 
+        |> Async.StartImmediate  
 
 and StoreNavigator = {
     NavigateToAdd: Navigator -> Context -> unit
