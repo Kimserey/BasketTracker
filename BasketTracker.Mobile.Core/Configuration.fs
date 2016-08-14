@@ -35,7 +35,7 @@ and ItemListPageConfiguration = {
     EmptyMessage: string
 } with
     static member Default = { 
-        TitleDateFormat = "ddd d MMM"
+        TitleDateFormat = "ddd d MMM HH:mm"
         Padding = 0.
         Add = ButtonConfig.DefaultAdd
         EmptyMessage = "You have not entered any items yet."

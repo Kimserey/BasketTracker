@@ -68,7 +68,7 @@ and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
 
         // Bindings
         date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:ddd d MMM}")
-        time.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:hh:mm tt}")
+        time.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:HH:mm}")
         amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
         remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
 
