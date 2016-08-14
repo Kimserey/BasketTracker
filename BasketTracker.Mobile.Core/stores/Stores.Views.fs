@@ -49,12 +49,12 @@ type StoreListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigat
 and StoreViewCell(config: CellConfiguration, navigator: Navigator) as self =
     inherit ViewCell()
 
-    let name    = new Label(YAlign = TextAlignment.Center)
+    let name    = new Label(VerticalTextAlignment = TextAlignment.Center)
     let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
     let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(config.Padding))
         layout.Children.Add(name)
         layout
 

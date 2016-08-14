@@ -11,7 +11,7 @@ type BasketListPage(vm: ListPageViewModel, config: ListPageConfiguration, naviga
 
     let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(config.Cell, navigator))))
     
-    let emptyMsg = new Label(Text = config.EmptyMessage, XAlign = TextAlignment.Center)
+    let emptyMsg = new Label(Text = config.EmptyMessage, HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center)
 
     let add = 
         new ToolbarItem(
@@ -46,14 +46,14 @@ and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
     inherit ViewCell()
 
     let image  = new Image()
-    let date   = new Label(XAlign = TextAlignment.Start)
-    let time   = new Label(XAlign = TextAlignment.Start)
-    let amount = new Label(XAlign = TextAlignment.End)
+    let date   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
+    let time   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
+    let amount = new Label(HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center)
     let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
     let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
-        let layout = new Grid()
+        let layout = new Grid(Padding = new Thickness(config.Padding))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))

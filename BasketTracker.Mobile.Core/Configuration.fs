@@ -32,7 +32,7 @@ and ModalPageConfiguration = {
     Save: ButtonConfig
     Cancel: ButtonConfig
 } with
-    static member Default = { Padding = 10.; Save = { Title = "Save"; Icon = "" }; Cancel = { Title = "Cancel"; Icon = "" } }
+    static member Default = { Padding = 5.; Save = { Title = "Save"; Icon = "" }; Cancel = { Title = "Cancel"; Icon = "" } }
 
 and ListPageConfiguration = {
     Padding: float
@@ -40,13 +40,14 @@ and ListPageConfiguration = {
     Cell: CellConfiguration
     EmptyMessage: string
 } with
-    static member Default = { Padding = 10.; Add = ButtonConfig.DefaultAdd; EmptyMessage = "You have not entered any items yet."; Cell = CellConfiguration.Default }
+    static member Default = { Padding = 0.; Add = ButtonConfig.DefaultAdd; EmptyMessage = "You have not entered any items yet."; Cell = CellConfiguration.Default }
 
 and CellConfiguration = {
+    Padding: float
     Edit: ButtonConfig
     Delete: ButtonConfig
 } with
-    static member Default = { Edit = ButtonConfig.DefaultEdit; Delete = ButtonConfig.DefaultDelete }
+    static member Default = { Padding = 5.; Edit = ButtonConfig.DefaultEdit; Delete = ButtonConfig.DefaultDelete }
 
 and ButtonConfig = {
     Title: string
