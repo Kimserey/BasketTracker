@@ -19,7 +19,7 @@ type BasketListPage(vm: ListPageViewModel, navigator: Navigator) as self =
     let add = 
         new ToolbarItem(
             "Add new basket", 
-            "basket_add", 
+            "add", 
             fun () -> navigator.Basket.NavigateToAdd navigator <| Context self.BindingContext)
 
     let layout = 

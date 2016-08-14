@@ -77,28 +77,70 @@ and StoreViewCell(navigator: Navigator) as self =
 
         self.View <- layout
 
+
 type AddStorePage(vm) as self =
-    inherit ModalPage()
-    
-    let entry = new Entry(Placeholder = "Enter the name of the new store here")
+    inherit ContentPage()
+
+    let entry = new Entry(Placeholder = "Enter the name of the store here")
+    let save =
+        new ToolbarItem(
+            "Save this store", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    let layout = 
+        let layout = new StackLayout(Padding = new Thickness(10.))
+        layout.Children.Add(entry)
+        layout
 
     do
+        // Bindings
+        self.SetBinding(ContentPage.TitleProperty, "Title")
         entry.SetBinding(Entry.TextProperty, "Name")
-        self.Positive.SetBinding(Button.CommandProperty, "AddCommand")
-        self.Positive.SetBinding(Button.CommandParameterProperty, "Name")
+        save.SetBinding(ToolbarItem.CommandProperty, "AddCommand")
+        save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
 
-        self.BindingContext <- vm
-        self.Content <- base.MakeLayout entry
-        
-type UpdateStorePage(vm) as self =
-    inherit ModalPage()
-    
-    let entry = new Entry(Placeholder = "Enter a store name here")
+        // Toolbar items
+        base.ToolbarItems.Add(save)
+
+        base.BindingContext <- vm
+        base.Content <- layout
+
+
+type UpdateStorePage(vm: obj) as self =
+    inherit ContentPage()
+
+    let entry =
+        new Entry(Placeholder = "Enter a store name here")
+
+    let save =
+        new ToolbarItem(
+            "Save your changes", 
+            "save", 
+            fun () -> 
+                self.Navigation.PopAsync()
+                |> Async.AwaitTask
+                |> Async.Ignore
+                |> Async.StartImmediate)
+
+    let layout =
+        let layout = new StackLayout(Padding = new Thickness(10.))
+        layout.Children.Add(entry)
+        layout
 
     do
+        // Bindings
+        self.SetBinding(ContentPage.TitleProperty, "Title")
         entry.SetBinding(Entry.TextProperty, "Name")
-        self.Positive.SetBinding(Button.CommandProperty, "UpdateCommand")
-        self.Positive.SetBinding(Button.CommandParameterProperty, "Name")
+        save.SetBinding(ToolbarItem.CommandProperty, "UpdateCommand")
+        save.SetBinding(ToolbarItem.CommandParameterProperty, "Name")
 
-        self.BindingContext <- vm
-        self.Content <- base.MakeLayout entry
+        // Toolbar items
+        self.ToolbarItems.Add(save)
+
+        base.BindingContext <- vm
+        self.Content <- layout

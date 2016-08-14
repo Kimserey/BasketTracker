@@ -12,6 +12,13 @@ open BasketTracker.Mobile.Core.Stores
 open BasketTracker.Mobile.Core.Baskets
 open BasketTracker.Mobile.Core.Items
 
+type AboutPage() =
+    inherit ContentPage(Title = "About")
+
+
+    do
+        base.Content <- new ScrollView()
+
 type App() = 
     inherit Application()
     
@@ -25,7 +32,9 @@ type App() =
                 fun nav (Context ctx) ->
                     let vm = new AddStoreViewModel(ctx :?> StoreListViewModel, Stores.Storage.api, "Add new store")
                     let page = new AddStorePage(vm)
-                    nav.Navigate(page)
+                    nav.Navigation.PushModalAsync(page)
+                    |> Async.AwaitTask
+                    |> Async.StartImmediate
               
               NavigateToUpdate =
                 fun nav (Context ctx) ->
@@ -84,6 +93,6 @@ type App() =
         nav.PushAsync(new StoreListPage(vm, navigator))
         |> Async.AwaitTask
         |> Async.StartImmediate
-
+        
         base.MainPage <- nav
             

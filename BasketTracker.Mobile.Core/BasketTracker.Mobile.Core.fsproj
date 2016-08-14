@@ -46,6 +46,7 @@
     <Compile Include="Infrastructure.Platform.fs" />
     <Compile Include="Infrastructure.Converters.fs" />
     <Compile Include="Infrastructure.ViewModels.fs" />
+    <Compile Include="Infrastructure.Views.fs" />
     <Compile Include="Infrastructure.Navigator.fs" />
     <Compile Include="Infrastructure.Storage.fs" />
     <Compile Include="stores\Stores.Storage.fs" />
