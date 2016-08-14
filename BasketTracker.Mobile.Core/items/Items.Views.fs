@@ -6,7 +6,7 @@ open System
 open System.Collections
 open System.ComponentModel
 
-type ItemListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigator: Navigator) as self =
+type ItemListPage(vm: ListPageViewModel, config: ItemListPageConfiguration, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new ItemViewCell(config.Cell, navigator))))
@@ -28,7 +28,7 @@ type ItemListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigato
 
     do
         // Bindings
-        self.SetBinding(ContentPage.TitleProperty, "Title")
+        self.SetBinding(ContentPage.TitleProperty, "Date", stringFormat = config.TitleDateFormat)
         listView.SetBinding(ListView.ItemsSourceProperty, "List")
         emptyMsg.SetBinding(Label.IsVisibleProperty, "List", converter = new IsEmptyConverter())
 

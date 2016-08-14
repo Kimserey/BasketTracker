@@ -9,7 +9,7 @@ type Configuration = {
     AddBasket: ModalPageConfiguration
     UpdateBasket: ModalPageConfiguration
     
-    Item: ListPageConfiguration
+    Item: ItemListPageConfiguration
     AddItem: ModalPageConfiguration
     UpdateItem: ModalPageConfiguration
 } with
@@ -22,9 +22,24 @@ type Configuration = {
         AddBasket = ModalPageConfiguration.Default
         UpdateBasket = ModalPageConfiguration.Default
         
-        Item = ListPageConfiguration.Default
+        Item = ItemListPageConfiguration.Default
         AddItem = ModalPageConfiguration.Default
         UpdateItem = ModalPageConfiguration.Default
+    }
+
+and ItemListPageConfiguration = {
+    TitleDateFormat: string
+    Padding: float
+    Add: ButtonConfig
+    Cell: CellConfiguration
+    EmptyMessage: string
+} with
+    static member Default = { 
+        TitleDateFormat = "ddd d MMM"
+        Padding = 0.
+        Add = ButtonConfig.DefaultAdd
+        EmptyMessage = "You have not entered any items yet."
+        Cell = CellConfiguration.Default 
     }
 
 and ModalPageConfiguration = {
@@ -40,7 +55,12 @@ and ListPageConfiguration = {
     Cell: CellConfiguration
     EmptyMessage: string
 } with
-    static member Default = { Padding = 0.; Add = ButtonConfig.DefaultAdd; EmptyMessage = "You have not entered any items yet."; Cell = CellConfiguration.Default }
+    static member Default = { 
+        Padding = 0.
+        Add = ButtonConfig.DefaultAdd
+        EmptyMessage = "You have not entered any items yet."
+        Cell = CellConfiguration.Default 
+    }
 
 and CellConfiguration = {
     Padding: float

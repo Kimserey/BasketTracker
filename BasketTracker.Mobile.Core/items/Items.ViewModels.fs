@@ -11,7 +11,7 @@ open System.Collections.ObjectModel
 open System.ComponentModel
 
 type ItemListViewModel(basketId, basketDate: DateTime, api:ItemsApi) =
-    inherit ListPageViewModel(Title = basketDate.ToString("dd MMM yyyy"))
+    inherit ListPageViewModel()
 
     let mutable list = 
         new ObservableCollection<ItemCellViewModel>()
@@ -22,6 +22,9 @@ type ItemListViewModel(basketId, basketDate: DateTime, api:ItemsApi) =
             base.OnPropertyChanging("List")
             list <- value
             base.OnPropertyChanged("List")
+
+    member self.Date
+        with get() = basketDate
 
     member self.BasketId
         with get() = basketId

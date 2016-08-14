@@ -45,7 +45,6 @@ type BasketListPage(vm: ListPageViewModel, config: ListPageConfiguration, naviga
 and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
     inherit ViewCell()
 
-    let image  = new Image()
     let date   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
     let time   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
     let amount = new Label(HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center)
@@ -68,7 +67,6 @@ and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
         update.Clicked.Add(fun _ -> navigator.Basket.NavigateToUpdate navigator <| Context self.BindingContext)
 
         // Bindings
-        image.SetBinding(Image.SourceProperty, "Image")
         date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:ddd d MMM}")
         time.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:hh:mm tt}")
         amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
