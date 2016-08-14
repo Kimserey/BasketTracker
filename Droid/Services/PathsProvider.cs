@@ -2,7 +2,6 @@
 using Xamarin.Forms;
 using BasketTracker.Mobile.Core;
 
-[assembly: Dependency(typeof(SQLite.Net.Platform.XamarinAndroid.SQLitePlatformAndroid))]
 [assembly: Dependency(typeof(BasketTracker.Droid.PathsProvider))]
 namespace BasketTracker.Droid
 {
