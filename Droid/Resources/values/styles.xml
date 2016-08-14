@@ -28,7 +28,7 @@
 	</style>
   
   <style name="MyTheme.Splash" parent ="Theme.AppCompat.Light">
-    <item name="windowBackground">@drawable/splash</item>
+    <item name="android:windowBackground">@drawable/splash</item>
     <item name="windowNoTitle">true</item>
   </style>
 </resources>
