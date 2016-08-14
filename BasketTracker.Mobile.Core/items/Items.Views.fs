@@ -28,7 +28,7 @@ type ItemListPage(vm: ListPageViewModel, config: ItemListPageConfiguration, navi
 
     do
         // Bindings
-        self.SetBinding(ContentPage.TitleProperty, "Date", stringFormat = config.TitleDateFormat)
+        self.SetBinding(ContentPage.TitleProperty, "Date", stringFormat = sprintf "{0:%s}" config.TitleDateFormat)
         listView.SetBinding(ListView.ItemsSourceProperty, "List")
         emptyMsg.SetBinding(Label.IsVisibleProperty, "List", converter = new IsEmptyConverter())
 
