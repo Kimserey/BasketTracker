@@ -15,8 +15,16 @@ open BasketTracker.Mobile.Core.Items
 type AboutPage() =
     inherit ContentPage(Title = "About")
 
+    let logo =
+        new Image(Source = FileImageSource.op_Implicit "splash_logo")
+
+    let layout =
+        let layout = new StackLayout()
+        layout.Children.Add(logo)
+        layout
+
     do
-        base.Content <- new ScrollView()
+        base.Content <- new ScrollView(Content = layout)
 
 type App() = 
     inherit Application()
@@ -89,10 +97,20 @@ type App() =
     let vm =
         new StoreListViewModel(Stores.Storage.api)
 
+    let toolbarItem = 
+        new ToolbarItem(Name = "About", Order = ToolbarItemOrder.Secondary)
+
     do 
         nav.PushAsync(new StoreListPage(vm, config.Store, navigator))
         |> Async.AwaitTask
         |> Async.StartImmediate
         
+        toolbarItem.Clicked.Add(fun _ -> 
+            nav.PushAsync(new AboutPage())
+            |> Async.AwaitTask
+            |> Async.StartImmediate
+        )
+        nav.ToolbarItems.Add(toolbarItem)
+
         base.MainPage <- nav
             

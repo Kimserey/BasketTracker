@@ -46,19 +46,16 @@ and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
     inherit ViewCell()
 
     let date   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
-    let time   = new Label(HorizontalTextAlignment = TextAlignment.Start, VerticalTextAlignment = TextAlignment.Center)
     let amount = new Label(HorizontalTextAlignment = TextAlignment.End, VerticalTextAlignment = TextAlignment.Center)
     let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
     let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
         let layout = new Grid(Padding = new Thickness(config.Padding))
-        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
+        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(4., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.Children.Add(date, 0, 0)
-        layout.Children.Add(time, 1, 0)
-        layout.Children.Add(amount, 2, 0)
+        layout.Children.Add(amount, 1, 0)
         layout
 
     do
@@ -67,8 +64,7 @@ and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
         update.Clicked.Add(fun _ -> navigator.Basket.NavigateToUpdate navigator <| Context self.BindingContext)
 
         // Bindings
-        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:ddd d MMM}")
-        time.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:HH:mm}")
+        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:ddd d MMM, HH:mm}")
         amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
         remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
 

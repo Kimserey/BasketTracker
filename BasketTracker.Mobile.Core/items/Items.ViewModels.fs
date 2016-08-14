@@ -71,7 +71,7 @@ type AddItemViewModel(parent: ItemListViewModel, api: ItemsApi)=
     inherit PageViewModel(Title = "Add a new item")
 
     let mutable name = ""
-    let mutable amount = 0.m
+    let mutable amount = 0.0m
 
     member self.Name
         with get() = name
