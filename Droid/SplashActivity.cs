@@ -19,10 +19,10 @@ namespace BasketTracker.Droid
         {
             base.OnResume();
 
-            //Task.Run(() =>
-            //{
-            //    StartActivity(new Intent(Application.Context, typeof(MainActivity)));
-            //});
+            Task.Run(() =>
+            {
+                StartActivity(new Intent(Application.Context, typeof(MainActivity)));
+            });
         }
     }
 }
