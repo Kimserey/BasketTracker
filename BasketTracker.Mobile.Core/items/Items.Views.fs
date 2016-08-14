@@ -6,24 +6,22 @@ open System
 open System.Collections
 open System.ComponentModel
 
-type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
+type ItemListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigator: Navigator) as self =
     inherit ContentPage()
 
-    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new ItemViewCell(navigator))))
+    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new ItemViewCell(config.Cell, navigator))))
     
     let emptyMsg =
-        new Label(
-            Text = "You haven't added any item yet. Click on the + icon to add an item.", 
-            XAlign = TextAlignment.Center)
+        new Label(Text = config.EmptyMessage, XAlign = TextAlignment.Center)
 
     let add = 
         new ToolbarItem(
-            "Add new item", 
-            "plus", 
+            config.Add.Title, 
+            config.Add.Icon, 
             fun () -> navigator.Item.NavigateToAdd navigator <| Context self.BindingContext)
 
     let layout = 
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(config.Padding))
         layout.Children.Add(emptyMsg)
         layout.Children.Add(listView)
         layout
@@ -45,16 +43,16 @@ type ItemListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         vm.Refresh()
 
 
-and ItemViewCell(navigator: Navigator) as self =
+and ItemViewCell(config: CellConfiguration, navigator: Navigator) as self =
     inherit ViewCell()
 
     let name   = new Label(XAlign = TextAlignment.Start, YAlign = TextAlignment.Center)
     let amount = new Label(XAlign = TextAlignment.End, YAlign = TextAlignment.Center)
-    let update = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
-    let remove = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
+    let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
+    let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
-        let layout = new Grid(Padding = new Thickness(10.))
+        let layout = new Grid()
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.Children.Add(name, 0, 0)

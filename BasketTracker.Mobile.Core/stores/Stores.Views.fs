@@ -6,21 +6,21 @@ open System
 open System.Globalization
 open System.Linq
 
-type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
+type StoreListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigator: Navigator) as self =
     inherit ContentPage()
 
     let listView = 
-        new ListView(ItemTemplate = new DataTemplate(fun () -> box (new StoreViewCell(navigator))))
+        new ListView(ItemTemplate = new DataTemplate(fun () -> box (new StoreViewCell(config.Cell, navigator))))
         
     let emptyMsg =
         new Label(
-            Text = "You haven't added any store yet. Click on the + icon to add a store.", 
+            Text = config.EmptyMessage, 
             XAlign = TextAlignment.Center)
 
     let add = 
         new ToolbarItem(
-            "Add new store", 
-            "add", 
+            config.Add.Title, 
+            config.Add.Icon, 
             fun () -> navigator.Store.NavigateToAdd navigator <| Context self.BindingContext)
 
     let layout =
@@ -46,20 +46,16 @@ type StoreListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         vm.Refresh()
         
 
-and StoreViewCell(navigator: Navigator) as self =
+and StoreViewCell(config: CellConfiguration, navigator: Navigator) as self =
     inherit ViewCell()
 
     let name    = new Label(YAlign = TextAlignment.Center)
-    let shop    = new Image(Source = FileImageSource.op_Implicit "shop")
-    let update  = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
-    let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
+    let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
+    let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
-        let layout = new Grid()
-        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-        layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(4., GridUnitType.Star)))
-        layout.Children.Add(shop, 0, 0)
-        layout.Children.Add(name, 1, 0)
+        let layout = new StackLayout()
+        layout.Children.Add(name)
         layout
 
     do
@@ -77,8 +73,8 @@ and StoreViewCell(navigator: Navigator) as self =
 
         self.View <- layout
 
-type AddStorePage(vm) as self =
-    inherit ModalPage()
+type AddStorePage(vm, config) as self =
+    inherit ModalPage(config)
     
     let entry = new Entry(Placeholder = "Enter the name of the new store here")
 
@@ -90,8 +86,8 @@ type AddStorePage(vm) as self =
         self.BindingContext <- vm
         self.Content <- base.MakeLayout entry
         
-type UpdateStorePage(vm) as self =
-    inherit ModalPage()
+type UpdateStorePage(vm, config) as self =
+    inherit ModalPage(config)
     
     let entry = new Entry(Placeholder = "Enter a store name here")
 

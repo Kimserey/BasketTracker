@@ -6,24 +6,21 @@ open System
 open System.Collections
 open System.ComponentModel
 
-type BasketListPage(vm: ListPageViewModel, navigator: Navigator) as self =
+type BasketListPage(vm: ListPageViewModel, config: ListPageConfiguration, navigator: Navigator) as self =
     inherit ContentPage()
 
-    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(navigator))))
+    let listView = new ListView(ItemTemplate = new DataTemplate(fun () -> box (new BasketViewCell(config.Cell, navigator))))
     
-    let emptyMsg =
-        new Label(
-            Text = "You haven't added any basket yet. Click on the + icon to add a basket.", 
-            XAlign = TextAlignment.Center)
+    let emptyMsg = new Label(Text = config.EmptyMessage, XAlign = TextAlignment.Center)
 
     let add = 
         new ToolbarItem(
-            "Add new basket", 
-            "add", 
+            config.Add.Title, 
+            config.Add.Icon, 
             fun () -> navigator.Basket.NavigateToAdd navigator <| Context self.BindingContext)
 
     let layout = 
-        let layout = new StackLayout()
+        let layout = new StackLayout(Padding = new Thickness(config.Padding))
         layout.Children.Add(emptyMsg)
         layout.Children.Add(listView)
         layout
@@ -45,22 +42,23 @@ type BasketListPage(vm: ListPageViewModel, navigator: Navigator) as self =
         vm.Refresh()
 
 
-and BasketViewCell(navigator: Navigator) as self=
+and BasketViewCell(config: CellConfiguration, navigator: Navigator) as self=
     inherit ViewCell()
 
     let image  = new Image()
-    let date   = new Label(YAlign = TextAlignment.Center)
-    let amount = new Label(YAlign = TextAlignment.Center)
-    let update  = new MenuItem(Text = "Edit", Icon = FileImageSource.op_Implicit "pencil")
-    let remove  = new MenuItem(Text = "Remove", Icon = FileImageSource.op_Implicit "bin")
+    let date   = new Label(XAlign = TextAlignment.Start)
+    let time   = new Label(XAlign = TextAlignment.Start)
+    let amount = new Label(XAlign = TextAlignment.End)
+    let update  = new MenuItem(Text = config.Edit.Title, Icon = FileImageSource.op_Implicit config.Edit.Icon)
+    let remove  = new MenuItem(Text = config.Delete.Title, Icon = FileImageSource.op_Implicit config.Delete.Icon)
 
     let layout = 
         let layout = new Grid()
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(3., GridUnitType.Star)))
         layout.ColumnDefinitions.Add(new ColumnDefinition(Width = new GridLength(1., GridUnitType.Star)))
-        layout.Children.Add(image, 0, 0)
-        layout.Children.Add(date, 1, 0)
+        layout.Children.Add(date, 0, 0)
+        layout.Children.Add(time, 1, 0)
         layout.Children.Add(amount, 2, 0)
         layout
 
@@ -71,7 +69,8 @@ and BasketViewCell(navigator: Navigator) as self=
 
         // Bindings
         image.SetBinding(Image.SourceProperty, "Image")
-        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:dd MMM yyyy - hh:mm tt}")
+        date.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:ddd d MMM}")
+        time.SetBinding(Label.TextProperty, "Date", stringFormat = "{0:hh:mm tt}")
         amount.SetBinding(Label.TextProperty, "Total", stringFormat = "{0:C2}")
         remove.SetBinding(MenuItem.CommandProperty, "RemoveCommand")
 

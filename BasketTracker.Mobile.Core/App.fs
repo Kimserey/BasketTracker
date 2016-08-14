@@ -15,12 +15,14 @@ open BasketTracker.Mobile.Core.Items
 type AboutPage() =
     inherit ContentPage(Title = "About")
 
-
     do
         base.Content <- new ScrollView()
 
 type App() = 
     inherit Application()
+    
+    let config = 
+        Configuration.Default
     
     let nav =
         new NavigationPage()
@@ -31,13 +33,13 @@ type App() =
             { NavigateToAdd = 
                 fun nav (Context ctx) ->
                     let vm = new AddStoreViewModel(ctx :?> StoreListViewModel, Stores.Storage.api, "Add new store")
-                    let page = new AddStorePage(vm)
+                    let page = new AddStorePage(vm, config.AddStore)
                     nav.PushModal page
               
               NavigateToUpdate =
                 fun nav (Context ctx) ->
                     let vm = new UpdateStoreViewModel(ctx :?> StoreCellViewModel, Stores.Storage.api, "Update an existing store")
-                    let page = new UpdateStorePage(vm)
+                    let page = new UpdateStorePage(vm, config.UpdateStore)
                     nav.PushModal page }
 
           Basket = 
@@ -45,7 +47,7 @@ type App() =
                 fun nav (Context ctx) ->
                     let parent = ctx :?> StoreCellViewModel
                     let vm = new BasketListViewModel(parent.Id, parent.Name, Baskets.Storage.api)
-                    let page = new BasketListPage(vm, nav)
+                    let page = new BasketListPage(vm, config.Basket, nav)
                     nav.Navigate(page)
               
               NavigateToAdd = 
@@ -67,7 +69,7 @@ type App() =
                 fun nav (Context ctx) -> 
                     let parent = ctx :?> BasketCellViewModel
                     let vm = new ItemListViewModel(parent.Id, parent.Date, Items.Storage.api)
-                    let page = new ItemListPage(vm, nav)
+                    let page = new ItemListPage(vm, config.Item, nav)
                     nav.Navigate(page)
 
               NavigateToAdd =
@@ -88,7 +90,7 @@ type App() =
         new StoreListViewModel(Stores.Storage.api)
 
     do 
-        nav.PushAsync(new StoreListPage(vm, navigator))
+        nav.PushAsync(new StoreListPage(vm, config.Store, navigator))
         |> Async.AwaitTask
         |> Async.StartImmediate
         

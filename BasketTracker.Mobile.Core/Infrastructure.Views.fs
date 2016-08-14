@@ -2,11 +2,11 @@ namespace BasketTracker.Mobile.Core
 
 open Xamarin.Forms
 
-type ModalPage() as self =
+type ModalPage(config: ModalPageConfiguration) as self =
     inherit ContentPage()
 
-    let positive = new Button(Text = "Save")
-    let negative = new Button(Text = "Cancel")
+    let positive = new Button(Text = config.Save.Title)
+    let negative = new Button(Text = config.Cancel.Title)
 
     let popModal() =
         self.Navigation.PopModalAsync()
@@ -25,7 +25,7 @@ type ModalPage() as self =
         with get() = negative
 
     member self.MakeLayout view = 
-        let layout = new StackLayout(Padding = new Thickness(10.))
+        let layout = new StackLayout(Padding = new Thickness(config.Padding))
         layout.Children.Add(view)
 
         let buttonLayout = new Grid()
