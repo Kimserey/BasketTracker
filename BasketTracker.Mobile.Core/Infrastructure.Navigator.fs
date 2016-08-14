@@ -16,6 +16,11 @@ type Navigator = {
         |> Async.AwaitTask 
         |> Async.StartImmediate  
 
+     member self.PushModal(page) =
+        self.Navigation.PushModalAsync(page)
+        |> Async.AwaitTask
+        |> Async.StartImmediate
+
 and StoreNavigator = {
     NavigateToAdd: Navigator -> Context -> unit
     NavigateToUpdate: Navigator -> Context -> unit

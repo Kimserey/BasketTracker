@@ -32,15 +32,13 @@ type App() =
                 fun nav (Context ctx) ->
                     let vm = new AddStoreViewModel(ctx :?> StoreListViewModel, Stores.Storage.api, "Add new store")
                     let page = new AddStorePage(vm)
-                    nav.Navigation.PushModalAsync(page)
-                    |> Async.AwaitTask
-                    |> Async.StartImmediate
+                    nav.PushModal page
               
               NavigateToUpdate =
                 fun nav (Context ctx) ->
                     let vm = new UpdateStoreViewModel(ctx :?> StoreCellViewModel, Stores.Storage.api, "Update an existing store")
                     let page = new UpdateStorePage(vm)
-                    nav.Navigate(page) }
+                    nav.PushModal page }
 
           Basket = 
             { NavigateToBasketList =
